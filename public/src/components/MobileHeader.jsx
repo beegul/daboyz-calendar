@@ -13,12 +13,18 @@ import DarkModeToggle from './DarkModeToggle';
 
 export function MobileHeader({
   activePersona,
+  currentMonth,
   isDarkMode,
   onToggleDarkMode,
   isSyncing,
   isOnline,
   pendingCount,
 }) {
+  // Format month for display (e.g., "Jun 2026")
+  const monthDisplay = currentMonth
+    ? currentMonth.toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
+    : '';
+
   // Simple status - no animation
   let status = '✓ Synced';
   if (isSyncing) status = '⏳ Syncing...';
@@ -34,7 +40,7 @@ export function MobileHeader({
       <div className="px-3 py-2 flex items-center justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h1 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Da Boyz
+            Da Boyz {monthDisplay && `• ${monthDisplay}`}
           </h1>
           <p className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
             {activePersona?.name || 'Create'}

@@ -432,6 +432,7 @@ This task breakdown spans **5 phases**:
 ### 🐛 Critical Production Bugfixes
 
 - [x] T161 [BUGFIX] Fix: 1st of month availability not persisting — **ROOT CAUSE**: `CalendarGrid.jsx` used `toISOString()` for date formatting, which converts to UTC and shifts the date backward for timezones ahead of UTC (e.g., UTC+5). **SOLUTION**: Changed `formatDate()` to use local date values: `YYYY-MM-DD` format using `getFullYear()`, `getMonth()`, `getDate()`. **FIX APPLIED**: CalendarGrid.jsx line 14–20. **VERIFICATION**: Build passes (118.51 kB gzipped), no regressions.
+- [x] T162 [BUGFIX] Mobile header missing month display — **SOLUTION**: Added `currentMonth` prop to MobileHeader component. Displays month name and year (e.g., "Jun 2026") next to app title with bullet separator. **FIX APPLIED**: MobileHeader.jsx lines 14–32, App.jsx line 499. **VERIFICATION**: Build passes (118.54 kB gzipped), meets SC-002 requirement "What month is shown?"
 
 ### Edge Case & Concurrency Testing
 

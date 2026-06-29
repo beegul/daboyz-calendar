@@ -496,6 +496,7 @@ export default function App() {
             {isMobile && (
               <MobileHeader
                 activePersona={activePersona}
+                currentMonth={currentMonth}
                 isDarkMode={isDarkMode}
                 onToggleDarkMode={toggleDarkMode}
                 isSyncing={syncingStates.size > 0}
