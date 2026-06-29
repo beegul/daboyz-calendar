@@ -252,33 +252,7 @@ export default function App() {
         }
       }
 
-      // Manually sync personas from backend immediately to ensure deletion propagates
-      // Use a small delay to allow backend to complete the deletion
-      setTimeout(async () => {
-        try {
-          const res = await fetch("/api/users");
-          if (res.ok) {
-            const { users: apiList = [] } = await res.json();
-            if (apiList.length > 0) {
-              const apiNames = new Set(apiList.map((p) => p.name));
-              setPersonas((prev) => {
-                const synced = prev.filter((p) => apiNames.has(p.name));
-                const localNames = new Set(synced.map((p) => p.name));
-                const fromAPI = apiList
-                  .filter((p) => !localNames.has(p.name))
-                  .map(({ name, color }) => ({ name, color }));
-                const result = [...synced, ...fromAPI];
-                localStorage.setItem("personas_storage", JSON.stringify(result));
-                return result;
-              });
-            }
-          }
-        } catch {
-          // Sync failure is non-fatal
-        }
-      }, 300);
-
-      // Close modal after success
+      // Close modal after success (the 3-second polling will handle backend sync)
       setTimeout(() => {
         setDeleteModalOpen(false);
         setPersonaToDelete(null);
