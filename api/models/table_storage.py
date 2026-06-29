@@ -20,10 +20,10 @@ class TableStorageClient:
             connection_string: Azure Storage connection string. Defaults to environment variable.
         """
         if connection_string is None:
-            connection_string = os.getenv("AzureWebJobsStorage")
+            connection_string = os.getenv("AZURE_STORAGE_CONNECTION_STRING") or os.getenv("AzureWebJobsStorage")
         
         if not connection_string:
-            raise ValueError("No connection string provided and AzureWebJobsStorage not set")
+            raise ValueError("No connection string provided and AZURE_STORAGE_CONNECTION_STRING not set")
         
         self.service_client = TableServiceClient.from_connection_string(connection_string)
         self._ensure_tables_exist()
