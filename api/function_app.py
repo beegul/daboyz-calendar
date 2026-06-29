@@ -54,6 +54,33 @@ async def post_user_handler(req: func.HttpRequest) -> func.HttpResponse:
     return await post_user(req)
 
 
+# Personas endpoint (alias for /users - returns all personas)
+@app.function_name("GetAllPersonas")
+@app.route(route="personas", methods=["GET"])
+async def get_personas_all_handler(req: func.HttpRequest) -> func.HttpResponse:
+    """GET /api/personas - Return list of all personas for collision detection"""
+    try:
+        client = TableStorageClient()
+        users = client.get_users()
+        
+        return func.HttpResponse(
+            json.dumps({
+                "personas": users
+            }),
+            status_code=200,
+            mimetype="application/json"
+        )
+    except Exception as e:
+        return func.HttpResponse(
+            json.dumps({
+                "error": str(e),
+                "code": "FETCH_PERSONAS_ERROR"
+            }),
+            status_code=500,
+            mimetype="application/json"
+        )
+
+
 # Availability endpoints
 @app.function_name("GetAvailability")
 @app.route(route="availability", methods=["GET"])
