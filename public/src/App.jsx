@@ -26,10 +26,43 @@ export default function App() {
   // Dark mode state
   const { isDarkMode, toggleDarkMode } = useDarkMode();
 
-  // Persona state
-  const [activePersona, setActivePersona] = useState(null);
-  const [personas, setPersonas] = useState([]);
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  // Persona state — initialised synchronously from localStorage to prevent flicker.
+  // Reading in the useState initializer runs before the first render (no useEffect delay).
+  const [personas, setPersonas] = useState(() => {
+    try {
+      const stored = localStorage.getItem("personas_storage");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  const [activePersona, setActivePersona] = useState(() => {
+    try {
+      const storedActive = localStorage.getItem("active_persona");
+      if (storedActive) return JSON.parse(storedActive);
+      // Fall back to first persona in list
+      const storedPersonas = localStorage.getItem("personas_storage");
+      if (storedPersonas) {
+        const arr = JSON.parse(storedPersonas);
+        return arr.length > 0 ? arr[0] : null;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  });
+
+  const [showOnboarding, setShowOnboarding] = useState(() => {
+    try {
+      const stored = localStorage.getItem("personas_storage");
+      const arr = stored ? JSON.parse(stored) : [];
+      return arr.length === 0;
+    } catch {
+      return true;
+    }
+  });
+
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [personaToDelete, setPersonaToDelete] = useState(null);
 
@@ -40,39 +73,6 @@ export default function App() {
     error: deleteError,
     success: deleteSuccess,
   } = useDeletePersona();
-
-  // Load personas from localStorage on mount
-  useEffect(() => {
-    const storedPersonas = localStorage.getItem("personas_storage");
-    const storedActivePersona = localStorage.getItem("active_persona");
-
-    if (storedPersonas) {
-      try {
-        const parsedPersonas = JSON.parse(storedPersonas);
-        setPersonas(parsedPersonas);
-
-        if (storedActivePersona) {
-          const active = JSON.parse(storedActivePersona);
-          setActivePersona(active);
-          setShowOnboarding(false);
-        } else if (parsedPersonas.length > 0) {
-          // Set first persona as active if no active persona stored
-          const firstPersona = parsedPersonas[0];
-          setActivePersona(firstPersona);
-          localStorage.setItem("active_persona", JSON.stringify(firstPersona));
-          setShowOnboarding(false);
-        } else {
-          setShowOnboarding(true);
-        }
-      } catch (err) {
-        console.error("Error loading personas:", err);
-        setShowOnboarding(true);
-      }
-    } else {
-      // No personas stored - show onboarding
-      setShowOnboarding(true);
-    }
-  }, []);
 
   // Load availability data
   const isoMonth = getIsoMonth(currentMonth);

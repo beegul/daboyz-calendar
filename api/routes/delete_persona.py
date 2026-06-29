@@ -51,22 +51,10 @@ async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:
                 mimetype="application/json"
             )
         
-        # Check if persona exists in Users table
+        # Cascade delete all availability entries for this persona.
+        # Personas are stored in localStorage only (no separate Users table),
+        # so we don't check Users table - just delete availability entries atomically.
         client = TableStorageClient()
-        users = client.get_users()
-        persona_exists = any(u.get("name") == persona_name for u in users)
-        
-        if not persona_exists:
-            return func.HttpResponse(
-                json.dumps({
-                    "error": f"Persona '{persona_name}' not found",
-                    "code": "NOT_FOUND"
-                }),
-                status_code=404,
-                mimetype="application/json"
-            )
-        
-        # Perform cascade delete: remove all availability entries for this persona
         deleted_count = client.delete_by_persona(persona_name)
         
         # Also delete the persona from Users table

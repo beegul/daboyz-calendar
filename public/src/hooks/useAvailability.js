@@ -7,6 +7,17 @@ const DEBOUNCE_DELAY = 500; // 500ms debounce for month changes
 const API_TIMEOUT = 3000; // 3 second timeout before falling back to mock
 const AGGRESSIVE_POLLING_INTERVAL = 2000; // 2 seconds when active (for real-time cross-device sync)
 const IDLE_POLLING_INTERVAL = 300000; // 5 minutes when idle (cost protection)
+const LS_AVAILABILITY_KEY = "daboyz_availability"; // localStorage key for caching entries
+
+/** Read cached entries from localStorage for a given month */
+function getCachedEntries(month) {
+  try {
+    const raw = localStorage.getItem(`${LS_AVAILABILITY_KEY}_${month}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * Detect conflicts between old and new entries
@@ -93,8 +104,15 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT) {
  * }}
  */
 export function useAvailability(month) {
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Seed entries from localStorage so the calendar renders immediately on load
+  // without waiting for the API — eliminating page flicker.
+  const [entries, setEntries] = useState(() => getCachedEntries(month) ?? []);
+  // Only skip the loading spinner when there are actual cached entries to show.
+  // An empty cache (null or []) still shows the spinner so we don't mislead the user.
+  const [loading, setLoading] = useState(() => {
+    const cached = getCachedEntries(month);
+    return cached === null || cached.length === 0;
+  });
   const [error, setError] = useState(null);
   const [lastSync, setLastSync] = useState(null);
   const [conflicts, setConflicts] = useState([]);
@@ -154,6 +172,10 @@ export function useAvailability(month) {
       }
 
       setEntries(data.entries || []);
+      // Persist to localStorage so next page load renders instantly without spinner
+      try {
+        localStorage.setItem(`${LS_AVAILABILITY_KEY}_${month}`, JSON.stringify(data.entries || []));
+      } catch { /* storage full - non-fatal */ }
       lastFetchRef.current = data.entries || [];
       setLastSync(new Date().toISOString());
     } catch (err) {
