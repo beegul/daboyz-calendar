@@ -28,21 +28,21 @@ export const motionConfig = {
 
   // Stagger delays (milliseconds between element animations)
   delays: {
-    stagger: 50,  // Delay between staggered elements (modal title→description→buttons)
+    stagger: 0,  // Instant appearance - no delay between elements
     none: 0,
   },
 
   // Animation presets (commonly used combinations)
   presets: {
-    // Modal entrance: fade in + scale up with staggered children
+    // Modal entrance: instant appearance (0ms) - no delay on app load
     modalEnter: {
-      duration: 75,
+      duration: 0,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // ease-out-quart
       delay: 0,
     },
-    // Modal exit: fade out + scale down
+    // Modal exit: instant disappearance (0ms)
     modalExit: {
-      duration: 75,
+      duration: 0,
       easing: 'cubic-bezier(0.7, 0, 0.84, 0)', // ease-in-quart
       delay: 0,
     },
