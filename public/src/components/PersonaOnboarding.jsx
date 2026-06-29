@@ -223,10 +223,10 @@ function PersonaOnboarding({ onPersonaCreate }) {
               placeholder="e.g., Sarah"
               maxLength={50}
               disabled={loadingPersonas}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white transition-all duration-200 ${
                 nameError || collisionMessage
                   ? "border-red-300 dark:border-red-600 focus:ring-red-500"
-                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500"
+                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-400 dark:focus:border-blue-500"
               }`}
               aria-label="Persona name"
               aria-describedby={

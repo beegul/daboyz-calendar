@@ -10,17 +10,17 @@ describe('MotionButton - Variants', () => {
   describe('all variants', () => {
     it('renders primary variant', () => {
       render(<MotionButton variant="primary">Primary</MotionButton>)
-      expect(screen.getByText('Primary')).toHaveClass('bg-blue-600')
+      expect(screen.getByRole('button')).toHaveClass('bg-blue-600')
     })
 
     it('renders secondary variant', () => {
       render(<MotionButton variant="secondary">Secondary</MotionButton>)
-      expect(screen.getByText('Secondary')).toHaveClass('bg-gray-200')
+      expect(screen.getByRole('button')).toHaveClass('bg-gray-200')
     })
 
     it('renders danger variant', () => {
       render(<MotionButton variant="danger">Danger</MotionButton>)
-      expect(screen.getByText('Danger')).toHaveClass('bg-red-600')
+      expect(screen.getByRole('button')).toHaveClass('bg-red-600')
     })
   })
 

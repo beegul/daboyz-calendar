@@ -36,13 +36,13 @@ export const motionConfig = {
   presets: {
     // Modal entrance: fade in + scale up with staggered children
     modalEnter: {
-      duration: 150,
+      duration: 75,
       easing: 'cubic-bezier(0.16, 1, 0.3, 1)', // ease-out-quart
       delay: 0,
     },
     // Modal exit: fade out + scale down
     modalExit: {
-      duration: 150,
+      duration: 75,
       easing: 'cubic-bezier(0.7, 0, 0.84, 0)', // ease-in-quart
       delay: 0,
     },

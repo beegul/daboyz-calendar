@@ -433,3 +433,70 @@ T081-T085 (Deployment)
 ---
 
 **Next Steps**: Begin Phase 1 setup. Install dependencies, configure Tailwind, update Jest. Estimated completion: 1-3 weeks depending on team size and parallel work streams.
+
+---
+
+## Phase 10: Convergence (Gap Remediation)
+
+**Purpose**: Address implementation gaps identified during convergence assessment (2026-06-29)
+
+**Status**: 46/85 core tasks complete (54%); 30 test failures identified requiring remediation
+
+**Duration**: ~8-10 hours (prioritized remediation)
+
+### Critical Path Gaps (Complete Next)
+
+- [ ] T086 [US1, partial] Implement CalendarGrid month navigation animations - add FLIP layout morphing using AnimatePresence. When month changes: previous month fades out, new month fades in + content morphs 400ms. Links to T025
+- [ ] T087 [US2, HIGH] Fix MotionButton component rendering in test environment - debug why variant CSS classes (bg-red-600, etc.) not applied in DOM. Component has code but tests failing. Affects T030, T031-T033
+- [ ] T088 [US2, HIGH] Add form input focus animations to PersonaOnboarding - implement gray (#ddd) → primary blue (#2563eb) border color transition (200ms) + subtle focus ring animation. Pure Tailwind/CSS transitions, no Framer Motion needed. Links to T034-T035
+
+### Integration Test Gaps (Must Complete Before Phase 6)
+
+- [ ] T089 [US3, MEDIUM] Create CalendarCell optimistic UI test - verify instant optimistic update (<16ms), loading shimmer visibility, success toast (4s auto-dismiss), error rollback smoothness (200ms). Links to T040
+- [ ] T090 [US3, MEDIUM] Create OptimisticUI.integration.test.jsx - end-to-end test covering: create persona (optimistic + success), toggle availability (optimistic + rollback), delete persona (cascade animation + success), network offline scenario (error toast + rollback). Links to T043
+- [ ] T091 [US3, MEDIUM] Create App.jsx integration test for optimistic UI - test full E2E flow with mock backend delay/failure scenarios. Validates orchestration of all optimistic UI patterns. Links to T045
+
+### DesignSystem Audit Gaps (Phase 6 Prerequisite)
+
+- [ ] T092 [US4, MEDIUM] Audit component dark mode styling consistency - verify all components have dark: variants for backgrounds, text, borders, and focus rings. Check: App.jsx, CalendarGrid, MotionModal, MotionButton, PersonaOnboarding, PersonaSelector, Toast, etc. Create dark mode audit checklist
+- [ ] T093 [US4, MEDIUM] Run Lighthouse audit - verify Performance ≥90, Accessibility ≥95. Check color contrast (≥4.5:1), focus indicators, CLS <0.1. Document baseline metrics
+
+### Mobile Responsiveness Gaps (Phase 7 Prerequisite)
+
+- [ ] T094 [US5, MEDIUM] Implement touch target size validation - audit all interactive elements (buttons, cells, inputs) for ≥44×44px minimum. Check computed styles, use CSS padding if needed to expand hit areas without reducing visual size. Create touchTargetUtils test
+- [ ] T095 [US5, MEDIUM] Add responsive breakpoint styling validation - verify modal, persona selector, calendar grid adapt correctly at mobile (<640px), tablet (641-1024px), desktop (1025px+) breakpoints
+
+### Test Coverage Remediation
+
+- [ ] T096 Investigate 30 failing tests - categorize by component (MotionButton.variants: 6, FormInputAnimations: ?, Mobile.integration: ?, etc.). Prioritize fixes based on critical path dependencies. Create failure tracking doc
+- [ ] T097 Update test snapshots if legitimate changes made - after fixing MotionButton rendering and form animations, regenerate snapshots with `npm test -- -u`
+
+### Documentation
+
+- [ ] T098 Update DARK_MODE_IMPLEMENTATION.md - document all components with dark: variants, patterns used, testing approach for dark mode
+- [ ] T099 Create CONVERGENCE_STATUS.md - document Phase 10 gap remediation: which tasks completed, which deferred to Phase 11, blockers resolved
+
+**Blocking Dependencies**:
+- T086 blocks T027 (CalendarGrid motion tests)
+- T087 blocks T030-T033 (MotionButton tests + component updates)
+- T088 blocks T034-T035 (form input animation tests)
+- T089-T091 block full Phase 5 completion
+- T092-T095 block Phases 6-7 from starting
+
+**Success Criteria**:
+- ✅ All 12 new tasks completed
+- ✅ 30 failing tests reduced to ≤5 (acceptable threshold)
+- ✅ Phase 3-5 fully complete with zero test failures on critical path
+- ✅ Dark mode audit: 100% component coverage verified
+- ✅ Lighthouse baseline: ≥90 Performance, ≥95 Accessibility
+
+**Recommended Approach**:
+1. Complete T086-T091 immediately (10-12 hours) - unblocks Phases 6-7
+2. Complete T092-T095 (4-6 hours) - validates design system readiness
+3. Complete T096-T099 (2-3 hours) - documentation + test investigation
+4. Run full test suite after each task group - validate no regressions
+5. Target: Complete Phase 10 within 1-2 days, begin Phase 6 by next iteration
+
+---
+
+**Convergence Assessment Complete**: 12 remediation tasks appended. Code is 54% complete (46/85 tasks). Next step: Execute Phase 10 tasks to close implementation gaps and unblock subsequent phases.
