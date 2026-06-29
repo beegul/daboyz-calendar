@@ -304,7 +304,12 @@ export default function App() {
 
               {/* Loading state */}
               {loading && (
-                <div className="text-center py-8">
+                <div
+                  className="text-center py-8"
+                  aria-busy="true"
+                  aria-label="Loading calendar data"
+                  role="status"
+                >
                   <div className="inline-block">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
                     <p className="mt-2 text-gray-600">Loading...</p>

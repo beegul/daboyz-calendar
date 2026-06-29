@@ -485,6 +485,19 @@ If issues discovered in production:
 
 ---
 
+## Phase 7: Convergence (Accessibility Enhancements)
+
+**Purpose**: Address accessibility gaps identified during post-implementation convergence review
+
+- [X] T053 [P] Add aria-busy and aria-label to loading state in App.jsx per FR-004
+  - File: `public/src/App.jsx` lines 303-310
+  - Change: Add `aria-busy="true"` and `aria-label="Loading calendar data"` to loading div
+  - Reason: FR-004 explicitly requires aria-busy on loading state during page refresh for screen reader announcements
+  - Expected: Screen readers announce loading state, tests still pass (no new test needed - existing loading tests cover)
+  - Severity: HIGH - violates FR-004 accessibility requirement
+
+---
+
 ## Related Documentation
 
 - **Specification**: [spec.md](spec.md) - User stories, acceptance criteria
