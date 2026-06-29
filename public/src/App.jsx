@@ -101,9 +101,9 @@ export default function App() {
   useEffect(() => {
     const syncPersonas = async () => {
       try {
-        const res = await fetch("/api/personas");
+        const res = await fetch("/api/users");
         if (!res.ok) return;
-        const { personas: apiList = [] } = await res.json();
+        const { users: apiList = [] } = await res.json();
         // If API returns nothing it may be offline or the table is still empty —
         // don't wipe local state in that case.
         if (apiList.length === 0) return;
