@@ -52,14 +52,15 @@ const useDeletePersona = () => {
       // Success! Log for debugging
       console.log(`[delete] Successfully deleted persona: ${personaName}`);
 
-      // Remove persona from localStorage
+      // Clear all month-specific availability caches for the deleted persona
       try {
-        const stored = localStorage.getItem('daboyz_availability');
-        if (stored) {
-          const entries = JSON.parse(stored);
-          const filtered = entries.filter((e) => e.name !== personaName);
-          localStorage.setItem('daboyz_availability', JSON.stringify(filtered));
-        }
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('daboyz_availability_')) {
+            const cached = JSON.parse(localStorage.getItem(key) || '[]');
+            const filtered = cached.filter((e) => e.name !== personaName);
+            localStorage.setItem(key, JSON.stringify(filtered));
+          }
+        });
       } catch (storageError) {
         console.warn('[delete] Error updating localStorage:', storageError);
       }

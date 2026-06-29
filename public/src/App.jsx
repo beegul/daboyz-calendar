@@ -85,7 +85,23 @@ export default function App() {
     deleteAvailability,
     refetch: refetchAvailability,
     useMockAPI,
+    allPersonas: apiPersonas,
   } = useAvailability(isoMonth);
+
+  // Merge personas discovered from the API into the local list.
+  // This enables cross-device persona switching: when Mobile loads entries
+  // created on PC, the PC personas automatically appear in the selector.
+  useEffect(() => {
+    if (apiPersonas.length === 0) return;
+    setPersonas((prev) => {
+      const localNames = new Set(prev.map((p) => p.name));
+      const newFromAPI = apiPersonas.filter((p) => !localNames.has(p.name));
+      if (newFromAPI.length === 0) return prev; // nothing to add
+      const merged = [...prev, ...newFromAPI];
+      localStorage.setItem("personas_storage", JSON.stringify(merged));
+      return merged;
+    });
+  }, [apiPersonas]);
 
   const loading = availLoading;
   const error = availError;

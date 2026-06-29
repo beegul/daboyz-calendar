@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { mockAPI } from "../api/mock";
 import { useIdleTimeout } from "./useIdleTimeout";
 
@@ -127,6 +127,10 @@ export function useAvailability(month) {
   const visibilityListenerRef = useRef(null);
   const blurListenerRef = useRef(null);
   const focusListenerRef = useRef(null);
+  // Only show the loading spinner on the very first fetch when there is no cached
+  // data. All subsequent background polls (every 2s) must NOT set loading=true or
+  // the calendar disappears on every polling cycle.
+  const isInitialFetchRef = useRef(getCachedEntries(month) === null);
 
   // Use idle tracking from useIdleTimeout hook
   const { isIdle } = useIdleTimeout();
@@ -135,7 +139,11 @@ export function useAvailability(month) {
     if (!month) return;
 
     try {
-      setLoading(true);
+      // Only show loading spinner on initial fetch (no cached data).
+      // Background polls must be silent so the calendar stays visible.
+      if (isInitialFetchRef.current) {
+        setLoading(true);
+      }
       setError(null);
       setConflicts([]);
 
@@ -178,6 +186,8 @@ export function useAvailability(month) {
       } catch { /* storage full - non-fatal */ }
       lastFetchRef.current = data.entries || [];
       setLastSync(new Date().toISOString());
+      // Mark initial fetch done so subsequent polls stay silent
+      isInitialFetchRef.current = false;
     } catch (err) {
       setError(err.message);
       console.error("Error fetching availability:", err);
@@ -392,6 +402,20 @@ export function useAvailability(month) {
     [entries, fetchAvailability],
   );
 
+  // Derive the unique list of personas from loaded entries.
+  // This powers cross-device persona discovery: when Device B loads entries
+  // written by Device A, it can extract Device A's personas and show them
+  // in the persona selector without any manual setup.
+  const allPersonas = useMemo(() => {
+    const seen = {};
+    for (const e of entries) {
+      if (e.name && e.color && !seen[e.name]) {
+        seen[e.name] = { name: e.name, color: e.color };
+      }
+    }
+    return Object.values(seen);
+  }, [entries]);
+
   return {
     entries,
     loading,
@@ -399,6 +423,7 @@ export function useAvailability(month) {
     lastSync,
     conflicts,
     useMockAPI,
+    allPersonas,
     toggleAvailability,
     deleteAvailability,
     refetch: fetchAvailability,
