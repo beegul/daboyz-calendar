@@ -116,7 +116,7 @@ export const MotionModal = ({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
             onClick={handleBackdropClick}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black bg-opacity-50 z-[9998]"
             aria-hidden="true"
           />
 
@@ -128,7 +128,7 @@ export const MotionModal = ({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={enterPreset}
-            className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none`}
+            className={`fixed inset-0 z-[9999] flex items-center justify-center pointer-events-none`}
           >
             <motion.div
               className={`${sizeClasses[size]} w-full mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl pointer-events-auto overflow-hidden`}

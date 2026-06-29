@@ -95,7 +95,7 @@ function PersonaSelector({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50"
+          className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-40"
           role="listbox"
         >
           {/* Personas list */}
@@ -139,7 +139,7 @@ function PersonaSelector({
                       </svg>
                     )}
                   </button>
-                  {/* Delete menu button (three dots) */}
+                  {/* Delete menu button (three dots) - always visible */}
                   {onDeletePersona && (
                     <div className="relative">
                       <button
@@ -147,7 +147,7 @@ function PersonaSelector({
                           e.stopPropagation();
                           setMenuOpen(menuOpen === personaKey ? null : personaKey);
                         }}
-                        className="px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 dark:hover:bg-red-900 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                        className="px-2 py-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded transition-colors"
                         aria-label={`Delete ${persona.name}`}
                         title={`Delete ${persona.name}`}
                       >
@@ -155,7 +155,7 @@ function PersonaSelector({
                       </button>
                       {/* Delete menu */}
                       {menuOpen === personaKey && (
-                        <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-700 rounded-lg shadow-lg z-50">
+                        <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-700 rounded-lg shadow-lg z-40">
                           <button
                             onClick={(e) => handleDeleteClick(e, persona)}
                             className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 text-sm font-medium rounded-lg transition-colors"
