@@ -33,14 +33,14 @@ const sizeClasses = {
 // Variant styling
 const variantClasses = {
   default: {
-    header: 'bg-white border-b border-gray-200',
-    close: 'text-gray-400 hover:text-gray-600',
-    headerText: 'text-gray-900',
+    header: 'bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700',
+    close: 'text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300',
+    headerText: 'text-gray-900 dark:text-white',
   },
   danger: {
-    header: 'bg-red-50 border-b border-red-200',
-    close: 'text-red-400 hover:text-red-600',
-    headerText: 'text-red-900',
+    header: 'bg-red-50 dark:bg-red-900 border-b border-red-200 dark:border-red-700',
+    close: 'text-red-400 dark:text-red-300 hover:text-red-600 dark:hover:text-red-200',
+    headerText: 'text-red-900 dark:text-red-100',
   },
 }
 
@@ -131,7 +131,7 @@ export const MotionModal = ({
             className={`fixed inset-0 z-50 flex items-center justify-center pointer-events-none`}
           >
             <motion.div
-              className={`${sizeClasses[size]} w-full mx-4 bg-white rounded-lg shadow-xl pointer-events-auto overflow-hidden`}
+              className={`${sizeClasses[size]} w-full mx-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl pointer-events-auto overflow-hidden`}
               role="dialog"
               aria-modal="true"
               aria-labelledby={title ? 'modal-title' : undefined}
@@ -173,7 +173,7 @@ export const MotionModal = ({
                     },
                   },
                 }}
-                className="px-6 py-4"
+                className="px-6 py-4 text-gray-900 dark:text-white"
               >
                 {/* Children with individual stagger */}
                 {React.Children.map(children, (child, index) => (
@@ -202,7 +202,7 @@ export const MotionModal = ({
                     ...enterPreset,
                     delay: enterPreset.delay + (React.Children.count(children) * 50),
                   }}
-                  className="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-end gap-3"
+                  className="bg-gray-50 dark:bg-gray-700 px-6 py-4 border-t border-gray-200 dark:border-gray-600 flex items-center justify-end gap-3"
                 >
                   {actions}
                 </motion.div>

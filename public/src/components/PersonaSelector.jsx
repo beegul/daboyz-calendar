@@ -64,21 +64,21 @@ function PersonaSelector({
       {/* Dropdown button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
         aria-label="Select persona"
         aria-expanded={isOpen}
         aria-haspopup="listbox"
       >
         <div
-          className="w-4 h-4 rounded border border-gray-300"
+          className="w-4 h-4 rounded border border-gray-300 dark:border-gray-500"
           style={{ backgroundColor: activePersona.color }}
           title="Current persona color"
         />
-        <span className="font-medium text-gray-900 text-sm">
+        <span className="font-medium text-gray-900 dark:text-white text-sm">
           {activePersona.name}
         </span>
         <svg
-          className={`w-4 h-4 text-gray-600 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`w-4 h-4 text-gray-600 dark:text-gray-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -95,7 +95,7 @@ function PersonaSelector({
       {/* Dropdown menu */}
       {isOpen && (
         <div
-          className="absolute top-full left-0 mt-2 w-48 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
+          className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-50"
           role="listbox"
         >
           {/* Personas list */}

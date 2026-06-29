@@ -31,9 +31,9 @@ const sizeClasses = {
 
 // Variant styling
 const variantClasses = {
-  primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900',
-  danger: 'bg-red-600 hover:bg-red-700 text-white',
+  primary: 'bg-blue-600 dark:bg-blue-700 hover:bg-blue-700 dark:hover:bg-blue-600 text-white',
+  secondary: 'bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-900 dark:text-white',
+  danger: 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-600 text-white',
 }
 
 export const MotionButton = ({
@@ -85,7 +85,7 @@ export const MotionButton = ({
         ${variantClasses[variant]}
         ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         rounded-lg font-medium transition-all
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500
+        focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-800 focus:ring-blue-500
         ${className}
       `}
       aria-label={typeof children === 'string' ? children : undefined}

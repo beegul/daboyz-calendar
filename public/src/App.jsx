@@ -357,13 +357,13 @@ export default function App() {
             >
               {/* Error messages */}
               {error && (
-                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
+                <div className="mb-4 p-4 bg-red-50 dark:bg-red-900 dark:border-red-700 border border-red-200 rounded-md text-red-700 dark:text-red-100">
                   <strong>Error:</strong> {error}
                 </div>
               )}
 
               {/* Status bar */}
-              <div className="mb-6 bg-white rounded-lg shadow p-4">
+              <div className="mb-6 bg-white dark:bg-gray-800 dark:border dark:border-gray-700 rounded-lg shadow p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     {activePersona && (
@@ -376,7 +376,7 @@ export default function App() {
                       />
                     )}
                   </div>
-                  <div className="text-xs text-gray-500 text-right ml-4">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 text-right ml-4">
                     <div>
                       Last synced:{" "}
                       {lastSync ? new Date(lastSync).toLocaleTimeString() : "Never"}
@@ -384,7 +384,7 @@ export default function App() {
                     <button
                       onClick={refetchAvailability}
                       disabled={loading}
-                      className="mt-2 px-3 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 disabled:opacity-50"
+                      className="mt-2 px-3 py-1 bg-blue-600 dark:bg-blue-700 text-white rounded text-xs hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50"
                       title="Manually refresh data from server"
                     >
                       🔄 Refresh
@@ -403,14 +403,14 @@ export default function App() {
                 >
                   <div className="inline-block">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
-                    <p className="mt-2 text-gray-600">Loading...</p>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">Loading...</p>
                   </div>
                 </div>
               )}
 
               {/* Calendar */}
               {!loading && activePersona && (
-                <div className="bg-white rounded-lg shadow p-6">
+                <div className="bg-white dark:bg-gray-800 dark:border dark:border-gray-700 rounded-lg shadow p-6">
                   <MonthNavigation
                     currentMonth={currentMonth}
                     onPreviousMonth={handlePreviousMonth}

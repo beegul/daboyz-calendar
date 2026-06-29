@@ -77,14 +77,14 @@ export const CalendarCell = ({
   return (
     <motion.div
       className={`
-        border border-gray-200 rounded p-2 min-h-[60px]
-        ${isToday ? 'bg-blue-50 border-blue-300' : 'bg-white'}
+        border border-gray-200 dark:border-gray-600 rounded p-2 min-h-[60px]
+        ${isToday ? 'bg-blue-50 dark:bg-blue-900 border-blue-300 dark:border-blue-700' : 'bg-white dark:bg-gray-800'}
         hover:shadow-md transition-shadow
       `}
       layout
     >
       {/* Date header */}
-      <div className="text-xs font-semibold text-gray-600 mb-1">
+      <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">
         {date.getDate()}
       </div>
 

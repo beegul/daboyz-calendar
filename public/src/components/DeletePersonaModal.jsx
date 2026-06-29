@@ -72,7 +72,7 @@ const DeletePersonaModal = ({
     >
       {!deleteSuccess && !error && (
         <>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             This will remove {personaName} and all their calendar entries. This
             cannot be undone.
           </p>
@@ -98,7 +98,7 @@ const DeletePersonaModal = ({
 
       {deleteSuccess && (
         <>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             {personaName} and all their calendar entries have been removed.
           </p>
           <div className="flex gap-3 justify-end">
@@ -111,7 +111,7 @@ const DeletePersonaModal = ({
 
       {error && (
         <>
-          <p className="text-red-600 mb-6 font-medium">{error}</p>
+          <p className="text-red-600 dark:text-red-400 mb-6 font-medium">{error}</p>
           <div className="flex gap-3 justify-end">
             <MotionButton
               variant="secondary"

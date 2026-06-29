@@ -93,13 +93,13 @@ export default function CalendarGrid({
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="bg-white rounded-lg shadow overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
       {/* Weekday headers */}
-      <div className="grid grid-cols-7 bg-gray-100 border-b border-gray-200">
+      <div className="grid grid-cols-7 bg-gray-100 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
         {weekDays.map((day) => (
           <div
             key={day}
-            className="px-4 py-3 text-center font-semibold text-gray-700 text-sm"
+            className="px-4 py-3 text-center font-semibold text-gray-700 dark:text-gray-200 text-sm"
           >
             {day}
           </div>
@@ -135,10 +135,10 @@ export default function CalendarGrid({
             <div
               key={index}
               className={`
-                min-h-24 p-2 border border-gray-200
-                ${isCurrentMonth ? "bg-white" : "bg-gray-50"}
-                ${isToday ? "bg-blue-50" : ""}
-                ${!date ? "cursor-default" : "cursor-pointer hover:bg-blue-100 transition-colors"}
+                min-h-24 p-2 border border-gray-200 dark:border-gray-600
+                ${isCurrentMonth ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-700"}
+                ${isToday ? "bg-blue-50 dark:bg-blue-900" : ""}
+                ${!date ? "cursor-default" : "cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"}
               `}
               onClick={() => handleDateClick(date)}
             >
@@ -147,7 +147,7 @@ export default function CalendarGrid({
                   <div
                     className={`
                     text-sm font-semibold mb-1
-                    ${isCurrentMonth ? "text-gray-900" : "text-gray-400"}
+                    ${isCurrentMonth ? "text-gray-900 dark:text-white" : "text-gray-400 dark:text-gray-500"}
                     ${isToday ? "text-blue-600" : ""}
                   `}
                   >

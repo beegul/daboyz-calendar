@@ -193,12 +193,12 @@ function PersonaOnboarding({ onPersonaCreate }) {
       onClose={null}
       title="Create Your Persona"
     >
-      <p className="text-gray-600 text-sm mb-6">
+      <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
         Welcome! Create a unique persona to start marking your availability.
       </p>
 
       {personasError && !loadingPersonas && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+        <div className="mb-4 p-3 bg-yellow-50 dark:bg-yellow-900 border border-yellow-200 dark:border-yellow-700 rounded text-xs text-yellow-800 dark:text-yellow-100">
           <p>
             Note: Could not validate personas online ({personasError}).
             Proceeding without collision check.
@@ -211,7 +211,7 @@ function PersonaOnboarding({ onPersonaCreate }) {
           <div>
             <label
               htmlFor="personaName"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Name <span className="text-red-500">*</span>
             </label>
@@ -223,23 +223,23 @@ function PersonaOnboarding({ onPersonaCreate }) {
               placeholder="e.g., Sarah"
               maxLength={50}
               disabled={loadingPersonas}
-              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 ${
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${
                 nameError || collisionMessage
-                  ? "border-red-300 focus:ring-red-500"
-                  : "border-gray-300 focus:ring-blue-500"
+                  ? "border-red-300 dark:border-red-600 focus:ring-red-500"
+                  : "border-gray-300 dark:border-gray-600 focus:ring-blue-500"
               }`}
               aria-label="Persona name"
               aria-describedby={
                 nameError || collisionMessage ? "nameError" : undefined
               }
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {name.length}/50 characters
             </p>
             {nameError && (
               <p
                 id="nameError"
-                className="text-xs text-red-500 mt-1 font-medium"
+                className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium"
               >
                 {nameError}
               </p>
@@ -247,7 +247,7 @@ function PersonaOnboarding({ onPersonaCreate }) {
             {collisionMessage && !nameError && (
               <p
                 id="collisionError"
-                className="text-xs text-red-500 mt-1 font-medium"
+                className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium"
               >
                 ⚠️ {collisionMessage}
               </p>
@@ -258,7 +258,7 @@ function PersonaOnboarding({ onPersonaCreate }) {
           <div>
             <label
               htmlFor="personaColor"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
               Color <span className="text-red-500">*</span>
             </label>
@@ -270,17 +270,17 @@ function PersonaOnboarding({ onPersonaCreate }) {
                 onChange={handleColorChange}
                 disabled={loadingPersonas}
                 className={`w-16 h-10 rounded border cursor-pointer ${
-                  colorError ? "border-red-300" : "border-gray-300"
+                  colorError ? "border-red-300 dark:border-red-600" : "border-gray-300 dark:border-gray-600"
                 }`}
                 aria-label="Persona color picker"
               />
-              <span className="text-sm text-gray-600 font-mono">{color}</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400 font-mono">{color}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Pick your favorite color
             </p>
             {colorError && (
-              <p className="text-xs text-red-500 mt-1 font-medium">
+              <p className="text-xs text-red-500 dark:text-red-400 mt-1 font-medium\">
                 {colorError}
               </p>
             )}
