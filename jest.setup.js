@@ -34,8 +34,17 @@ const localStorageMock = {
 }
 global.localStorage = localStorageMock
 
+// Helper to control API failure scenarios for tests
+global.mockAPIFailure = false
+global.mockAPIError = null
+
 // Mock fetch globally if needed by any test
 global.fetch = jest.fn((url) => {
+  // Allow tests to simulate API failures
+  if (global.mockAPIFailure) {
+    return Promise.reject(global.mockAPIError || new Error('API is offline'))
+  }
+
   if (url.includes('/api/personas')) {
     return Promise.resolve({
       ok: true,

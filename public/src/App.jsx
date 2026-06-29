@@ -5,6 +5,7 @@ import PersonaSelector from "./components/PersonaSelector";
 import CalendarGrid from "./components/CalendarGrid";
 import MonthNavigation from "./components/MonthNavigation";
 import DarkModeToggle from "./components/DarkModeToggle";
+import OfflineWarning from "./components/OfflineWarning";
 import { useAvailability } from "./hooks/useAvailability";
 import { useDarkMode } from "./hooks/useDarkMode";
 
@@ -139,6 +140,9 @@ export default function App() {
     <div
       className={`min-h-screen ${isDarkMode ? "dark bg-gray-900" : "bg-gray-100"}`}
     >
+      {/* Offline warning banner */}
+      <OfflineWarning isOffline={useMockAPI} />
+      
       {/* Persona Onboarding Modal */}
       {showOnboarding && (
         <PersonaOnboarding onPersonaCreate={handlePersonaCreate} />
@@ -204,11 +208,6 @@ export default function App() {
                   Last synced:{" "}
                   {lastSync ? new Date(lastSync).toLocaleTimeString() : "Never"}
                 </div>
-                {useMockAPI && (
-                  <div className="text-amber-600 font-semibold mt-1">
-                    📝 Using Mock Data (localStorage)
-                  </div>
-                )}
                 <button
                   onClick={refetchAvailability}
                   disabled={loading}

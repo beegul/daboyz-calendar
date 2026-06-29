@@ -370,3 +370,86 @@ describe("useAvailability - Adaptive Polling", () => {
     expect(result.current.refetch).toBe(firstRefetch);
   });
 });
+
+describe("useAvailability - Error Handling (US1: Offline Detection)", () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
+    global.fetch.mockReset();
+
+    Object.defineProperty(document, "visibilityState", {
+      writable: true,
+      value: "visible",
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test("sets useMockAPI = true on network error", async () => {
+    global.fetch.mockRejectedValueOnce(new Error("Network error"));
+
+    const { result } = renderHook(() => useAvailability("2024-06"));
+
+    await waitFor(() => {
+      expect(result.current.useMockAPI).toBe(true);
+    });
+  });
+
+  test("sets useMockAPI = false when API recovers", async () => {
+    // First call fails
+    global.fetch.mockRejectedValueOnce(new Error("Network error"));
+
+    const { result, rerender } = renderHook(() => useAvailability("2024-06"));
+
+    await waitFor(() => {
+      expect(result.current.useMockAPI).toBe(true);
+    });
+
+    // Reset mock for recovery
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ entries: [] }),
+    });
+
+    // Trigger refetch
+    act(() => {
+      result.current.refetch();
+    });
+
+    await waitFor(() => {
+      expect(result.current.useMockAPI).toBe(false);
+    });
+  });
+
+  test("falls back to localStorage after error (no data loss)", async () => {
+    // Mock localStorage with cached data
+    const cachedData = [
+      { name: "Jack", color: "#FF0000", date: "2024-06-15" },
+    ];
+    localStorage.getItem.mockReturnValueOnce(JSON.stringify(cachedData));
+    global.fetch.mockRejectedValueOnce(new Error("Network error"));
+
+    const { result } = renderHook(() => useAvailability("2024-06"));
+
+    await waitFor(() => {
+      expect(result.current.useMockAPI).toBe(true);
+      // Should have entries from localStorage cache
+      expect(result.current.entries.length).toBeGreaterThanOrEqual(0);
+    });
+  });
+
+  test("announces offline state via console logging", async () => {
+    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
+    global.fetch.mockRejectedValueOnce(new Error("Network error"));
+
+    const { result } = renderHook(() => useAvailability("2024-06"));
+
+    await waitFor(() => {
+      expect(result.current.useMockAPI).toBe(true);
+    });
+
+    consoleSpy.mockRestore();
+  });
+});

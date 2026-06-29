@@ -1,0 +1,11 @@
+node_modules/
+dist/
+build/
+coverage/
+*.min.js
+vite.config.js
+jest.config.cjs
+.babelrc.cjs
+jest.setup.js
+.vscode/
+.idea/
