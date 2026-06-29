@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import PersonaOnboarding from "./components/PersonaOnboarding";
 import PersonaSelector from "./components/PersonaSelector";
@@ -88,20 +88,70 @@ export default function App() {
     allPersonas: apiPersonas,
   } = useAvailability(isoMonth);
 
-  // Merge personas discovered from the API into the local list.
-  // This enables cross-device persona switching: when Mobile loads entries
-  // created on PC, the PC personas automatically appear in the selector.
+  // Ref so the persona-sync interval can read the latest activePersona without
+  // needing it in its dependency array (which would restart the interval on every change).
+  const activePersonaRef = useRef(activePersona);
   useEffect(() => {
-    if (apiPersonas.length === 0) return;
-    setPersonas((prev) => {
-      const localNames = new Set(prev.map((p) => p.name));
-      const newFromAPI = apiPersonas.filter((p) => !localNames.has(p.name));
-      if (newFromAPI.length === 0) return prev; // nothing to add
-      const merged = [...prev, ...newFromAPI];
-      localStorage.setItem("personas_storage", JSON.stringify(merged));
-      return merged;
-    });
-  }, [apiPersonas]);
+    activePersonaRef.current = activePersona;
+  }, [activePersona]);
+
+  // Poll /api/personas (Users table) every 3 s to sync persona additions and
+  // deletions across devices.  When another device deletes a persona the Users
+  // table is updated; here we detect that and remove it from local state.
+  useEffect(() => {
+    const syncPersonas = async () => {
+      try {
+        const res = await fetch("/api/personas");
+        if (!res.ok) return;
+        const { personas: apiList = [] } = await res.json();
+        // If API returns nothing it may be offline or the table is still empty —
+        // don't wipe local state in that case.
+        if (apiList.length === 0) return;
+
+        const apiNames = new Set(apiList.map((p) => p.name));
+
+        // Sync the persona list: remove deleted ones, add any that are new.
+        setPersonas((prev) => {
+          const synced = prev.filter((p) => apiNames.has(p.name));
+          const localNames = new Set(synced.map((p) => p.name));
+          // Keep only name+color from API objects (strip Table Storage metadata)
+          const fromAPI = apiList
+            .filter((p) => !localNames.has(p.name))
+            .map(({ name, color }) => ({ name, color }));
+          const result = [...synced, ...fromAPI];
+          if (
+            result.length === prev.length &&
+            fromAPI.length === 0
+          )
+            return prev; // no change
+          localStorage.setItem("personas_storage", JSON.stringify(result));
+          return result;
+        });
+
+        // If the active persona was deleted on another device, switch immediately.
+        const current = activePersonaRef.current;
+        if (current && !apiNames.has(current.name)) {
+          const cleanList = apiList.map(({ name, color }) => ({ name, color }));
+          if (cleanList.length > 0) {
+            setActivePersona(cleanList[0]);
+            localStorage.setItem("active_persona", JSON.stringify(cleanList[0]));
+          } else {
+            setActivePersona(null);
+            localStorage.removeItem("active_persona");
+            setShowOnboarding(true);
+          }
+          // Immediately refresh availability so deleted persona's dates disappear.
+          refetchAvailability();
+        }
+      } catch {
+        // Network unavailable — keep current local state.
+      }
+    };
+
+    syncPersonas(); // check immediately on mount
+    const id = setInterval(syncPersonas, 3000);
+    return () => clearInterval(id);
+  }, [refetchAvailability]);
 
   const loading = availLoading;
   const error = availError;
@@ -122,18 +172,31 @@ export default function App() {
     });
   };
 
-  const handlePersonaCreate = (newPersona) => {
-    // Add new persona to list
+  const handlePersonaCreate = async (newPersona) => {
+    // Add new persona to list immediately (optimistic)
     const updatedPersonas = [...personas, newPersona];
     setPersonas(updatedPersonas);
-
-    // Store in localStorage
     localStorage.setItem("personas_storage", JSON.stringify(updatedPersonas));
     localStorage.setItem("active_persona", JSON.stringify(newPersona));
-
-    // Set as active persona
     setActivePersona(newPersona);
     setShowOnboarding(false);
+
+    // Register persona in the backend Users table so that:
+    //  1. Other devices can discover it via the persona-sync poll
+    //  2. DELETE /api/personas/{name} can cleanly remove it from Users table
+    try {
+      await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: newPersona.name.toLowerCase().replace(/\s+/g, "_"),
+          name: newPersona.name,
+          color: newPersona.color,
+        }),
+      });
+    } catch {
+      // Non-fatal — persona is saved locally; backend will sync on next retry.
+    }
   };
 
   const handleSelectPersona = (persona) => {
