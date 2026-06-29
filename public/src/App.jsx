@@ -172,9 +172,14 @@ export default function App() {
 
         const apiNames = new Set(apiList.map((p) => p.name));
 
+        // Track if any personas were deleted
+        let hadDeletions = false;
+
         // Sync the persona list: remove deleted ones, add any that are new.
         setPersonas((prev) => {
           const synced = prev.filter((p) => apiNames.has(p.name));
+          hadDeletions = synced.length < prev.length;
+          
           const localNames = new Set(synced.map((p) => p.name));
           // Keep only name+color from API objects (strip Table Storage metadata)
           const fromAPI = apiList
@@ -202,7 +207,11 @@ export default function App() {
             localStorage.removeItem("active_persona");
             setShowOnboarding(true);
           }
-          // Immediately refresh availability so deleted persona's dates disappear.
+        }
+
+        // If ANY persona was deleted, refresh availability to remove their stale entries.
+        // This prevents flicker where deleted personas still show old dates.
+        if (hadDeletions) {
           refetchAvailability();
         }
       } catch {
@@ -317,6 +326,9 @@ export default function App() {
           // Don't set showOnboarding here - wait for modal to close
         }
       }
+
+      // Immediately refresh availability to remove deleted persona's dates
+      refetchAvailability();
 
       // Close modal after success (the 3-second polling will handle backend sync)
       setTimeout(() => {
