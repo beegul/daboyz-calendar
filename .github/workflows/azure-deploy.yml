@@ -30,6 +30,11 @@ jobs:
       - name: Build app
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          ls -la dist/ || echo "dist folder not found"
+          ls -la api/ || echo "api folder not found"
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
