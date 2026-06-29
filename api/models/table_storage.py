@@ -118,7 +118,8 @@ class TableStorageClient:
         # Parse date to get month
         month = date[:7]  # YYYY-MM
         partition_key = f"calendar-{month}"
-        row_key = f"{name}#{color}#{date}"  # Composite key format
+        color_key = color.lstrip("#")  # Strip # from hex color - not allowed in Table Storage keys
+        row_key = f"{name}~{color_key}~{date}"  # Composite key format (~ safe separator)
         
         # Check if entry exists
         try:
@@ -161,7 +162,8 @@ class TableStorageClient:
         
         month = date[:7]
         partition_key = f"calendar-{month}"
-        row_key = f"{name}#{color}#{date}"  # Composite key format
+        color_key = color.lstrip("#")  # Strip # from hex color
+        row_key = f"{name}~{color_key}~{date}"  # Composite key format
         
         try:
             table_client.delete_entity(partition_key, row_key)
@@ -175,7 +177,8 @@ class TableStorageClient:
         
         month = date[:7]
         partition_key = f"calendar-{month}"
-        row_key = f"{name}#{color}#{date}"  # Composite key format
+        color_key = color.lstrip("#")  # Strip # from hex color
+        row_key = f"{name}~{color_key}~{date}"  # Composite key format
         
         try:
             entity = table_client.get_entity(partition_key, row_key)
