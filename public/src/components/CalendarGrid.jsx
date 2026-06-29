@@ -22,6 +22,7 @@ export default function CalendarGrid({
   onDateClick,
   onRemoveAvailability,
   isDarkMode = false,
+  syncingStates = new Set(), // Phase 3: Track which cells are syncing
 }) {
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -130,15 +131,21 @@ export default function CalendarGrid({
                 e.name === activePersona.name &&
                 e.color === activePersona.color,
             );
+          
+          // Phase 3: Check if this cell is syncing
+          const dateStr = date ? formatDate(date) : null;
+          const syncKey = activePersona ? `${activePersona.name}|${activePersona.color}|${dateStr}` : null;
+          const isSyncing = syncKey && syncingStates.has(syncKey);
 
           return (
             <div
               key={index}
               className={`
-                min-h-24 p-2 border border-gray-200 dark:border-gray-600
+                min-h-24 p-2 border border-gray-200 dark:border-gray-600 relative
                 ${isCurrentMonth ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-700"}
                 ${isToday ? "bg-blue-50 dark:bg-blue-900" : ""}
                 ${!date ? "cursor-default" : "cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"}
+                ${isSyncing ? "opacity-75" : ""}
               `}
               onClick={() => handleDateClick(date)}
             >
@@ -173,6 +180,17 @@ export default function CalendarGrid({
                     <div className="text-xs text-gray-400 mt-1">
                       Click to mark
                     </div>
+                  )}
+                  
+                  {/* Phase 3: Show syncing indicator */}
+                  {isSyncing && (
+                    <motion.div
+                      className="absolute inset-0 flex items-center justify-center bg-blue-50/50 dark:bg-blue-900/50 rounded"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    >
+                      <div className="w-4 h-4 rounded-full border-2 border-transparent border-t-blue-600 border-r-blue-600 animate-spin" />
+                    </motion.div>
                   )}
                 </>
               )}

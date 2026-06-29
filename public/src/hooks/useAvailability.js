@@ -120,6 +120,9 @@ export function useAvailability(month) {
   const [visibility, setVisibility] = useState(
     document.visibilityState || "visible",
   );
+  
+  // Phase 3: Track which (persona, date) pairs are currently syncing (for visual feedback)
+  const [syncingStates, setSyncingStates] = useState(new Set());
 
   const debounceTimerRef = useRef(null);
   const lastFetchRef = useRef(null);
@@ -221,6 +224,7 @@ export function useAvailability(month) {
       
       // IMMEDIATE sync when tab becomes visible (high priority for cross-device sync)
       if (newVisibility === "visible") {
+        // eslint-disable-next-line no-console
         console.log("[sync] Tab became visible - fetching latest data immediately");
         fetchAvailability();
       }
@@ -234,6 +238,7 @@ export function useAvailability(month) {
     const handleFocus = () => {
       setVisibility("visible");
       // IMMEDIATE sync when window gains focus (high priority for cross-device sync)
+      // eslint-disable-next-line no-console
       console.log("[sync] Window gained focus - fetching latest data immediately");
       fetchAvailability();
     };
@@ -296,7 +301,33 @@ export function useAvailability(month) {
 
   const toggleAvailability = useCallback(
     async (name, color, date) => {
+      // Phase 3: Generate unique syncing key for this action
+      const syncKey = `${name}|${color}|${date}`;
+      
       try {
+        // Phase 3: Mark as syncing (visual feedback)
+        setSyncingStates(prev => new Set(prev).add(syncKey));
+        
+        // Phase 3: OPTIMISTIC UPDATE - Update UI immediately before API call
+        const isCurrentlyAvailable = entries.some(
+          e => e.name === name && e.color === color && e.date === date
+        );
+        
+        if (isCurrentlyAvailable) {
+          // Optimistically remove
+          setEntries(prev =>
+            prev.filter(e => !(e.name === name && e.color === color && e.date === date))
+          );
+        } else {
+          // Optimistically add
+          setEntries(prev => [...prev, {
+            name,
+            color,
+            date,
+            timestamp: new Date().toISOString(),
+          }]);
+        }
+        
         let data;
         try {
           const response = await fetchWithTimeout(`${API_BASE}/availability`, {
@@ -322,14 +353,20 @@ export function useAvailability(month) {
           setUseMockAPI(true);
         }
 
-        // Update local state optimistically
-        if (data.action === "added") {
-          setEntries([...entries, data.entry]);
-        } else if (data.action === "removed") {
-          setEntries(
-            entries.filter(
-              (e) => !(e.name === name && e.color === color && e.date === date),
-            ),
+        // Verify API response matches our optimistic update, reconcile if needed
+        if (data && data.action === "added" && !isCurrentlyAvailable) {
+          // Good - add was successful, UI already shows it
+          setEntries(prev => {
+            const exists = prev.some(e => e.name === name && e.color === color && e.date === date);
+            if (!exists) {
+              return [...prev, data.entry || { name, color, date, timestamp: new Date().toISOString() }];
+            }
+            return prev;
+          });
+        } else if (data && data.action === "removed" && isCurrentlyAvailable) {
+          // Good - remove was successful, UI already shows it
+          setEntries(prev =>
+            prev.filter(e => !(e.name === name && e.color === color && e.date === date))
           );
         }
 
@@ -338,6 +375,7 @@ export function useAvailability(month) {
         // IMPORTANT: Fetch fresh data immediately to ensure cross-device sync
         // This ensures all clients see the latest state right after any change
         setTimeout(() => {
+          // eslint-disable-next-line no-console
           console.log("[sync] Toggle complete - fetching latest data for cross-device sync");
           fetchAvailability();
         }, 100);
@@ -346,7 +384,22 @@ export function useAvailability(month) {
       } catch (err) {
         setError(err.message);
         console.error("Error toggling availability:", err);
+        
+        // Phase 3: On error, fetch fresh data to reconcile UI with server
+        setTimeout(() => {
+          // eslint-disable-next-line no-console
+          console.log("[sync] Toggle failed - refetching to reconcile state");
+          fetchAvailability();
+        }, 500);
+        
         throw err;
+      } finally {
+        // Phase 3: Clear syncing state (visual feedback complete)
+        setSyncingStates(prev => {
+          const next = new Set(prev);
+          next.delete(syncKey);
+          return next;
+        });
       }
     },
     [entries, fetchAvailability],
@@ -390,6 +443,7 @@ export function useAvailability(month) {
         // IMPORTANT: Fetch fresh data immediately to ensure cross-device sync
         // This ensures all clients see the latest state right after any change
         setTimeout(() => {
+          // eslint-disable-next-line no-console
           console.log("[sync] Delete complete - fetching latest data for cross-device sync");
           fetchAvailability();
         }, 100);
@@ -424,6 +478,7 @@ export function useAvailability(month) {
     conflicts,
     useMockAPI,
     allPersonas,
+    syncingStates, // Phase 3: Export syncing states for visual feedback
     toggleAvailability,
     deleteAvailability,
     refetch: fetchAvailability,
