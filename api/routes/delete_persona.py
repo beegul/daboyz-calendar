@@ -7,7 +7,7 @@ of a persona and all its availability entries.
 
 import azure.functions as func
 import json
-from api.models.table_storage import TableStorageClient
+from models.table_storage import TableStorageClient
 
 
 async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:

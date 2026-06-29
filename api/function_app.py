@@ -16,14 +16,14 @@ from datetime import datetime
 import json
 import os
 
-app = func.FunctionApp(http_type='asgi')
+app = func.FunctionApp()
 
 # Import route handlers
-from api.routes.users import get_users, post_user
-from api.routes.availability import get_availability, post_availability, delete_availability
-from api.routes.delete_persona import delete_persona
-from api.models.table_storage import TableStorageClient
-from api.models.availability import validate_month
+from routes.users import get_users, post_user
+from routes.availability import get_availability, post_availability, delete_availability
+from routes.delete_persona import delete_persona
+from models.table_storage import TableStorageClient
+from models.availability import validate_month
 
 
 @app.function_name("HealthCheck")

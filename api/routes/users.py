@@ -5,7 +5,7 @@ API route handlers for user management.
 import azure.functions as func
 import json
 from datetime import datetime
-from api.models.table_storage import TableStorageClient
+from models.table_storage import TableStorageClient
 
 
 async def get_users(req: func.HttpRequest) -> func.HttpResponse:

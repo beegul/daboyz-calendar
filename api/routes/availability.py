@@ -5,8 +5,8 @@ API route handlers for availability management.
 import azure.functions as func
 import json
 from datetime import datetime
-from api.models.table_storage import TableStorageClient
-from api.models.availability import validate_month, validate_date, validate_name, validate_color
+from models.table_storage import TableStorageClient
+from models.availability import validate_month, validate_date, validate_name, validate_color
 
 
 async def get_availability(req: func.HttpRequest) -> func.HttpResponse:
