@@ -10,8 +10,10 @@ function PersonaSelector({
   activePersona,
   onSelectPersona,
   onCreateNew,
+  onDeletePersona,
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null); // Track which persona's menu is open
   const dropdownRef = useRef(null);
 
   // Close dropdown when clicking outside
@@ -19,26 +21,38 @@ function PersonaSelector({
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
+        setMenuOpen(null);
       }
     };
 
-    if (isOpen) {
+    if (isOpen || menuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, [isOpen, menuOpen]);
 
   const handleSelectPersona = (persona) => {
     onSelectPersona(persona);
     setIsOpen(false);
+    setMenuOpen(null);
   };
 
   const handleCreateNew = () => {
     onCreateNew();
     setIsOpen(false);
+    setMenuOpen(null);
+  };
+
+  const handleDeleteClick = (e, persona) => {
+    e.stopPropagation();
+    if (onDeletePersona) {
+      onDeletePersona(persona);
+    }
+    setIsOpen(false);
+    setMenuOpen(null);
   };
 
   if (!activePersona || !personas || personas.length === 0) {
@@ -90,41 +104,72 @@ function PersonaSelector({
               const isActive =
                 persona.name === activePersona.name &&
                 persona.color === activePersona.color;
+              const personaKey = `${persona.name}-${persona.color}`;
               return (
-                <button
-                  key={`${persona.name}-${persona.color}`}
-                  onClick={() => handleSelectPersona(persona)}
-                  className={`w-full text-left px-4 py-2 flex items-center gap-2 transition-colors ${
-                    isActive
-                      ? "bg-blue-50 text-blue-900"
-                      : "hover:bg-gray-100 text-gray-900"
-                  }`}
-                  role="option"
-                  aria-selected={isActive}
+                <div
+                  key={personaKey}
+                  className="relative flex items-center group"
                 >
-                  <div
-                    className="w-4 h-4 rounded border border-gray-300"
-                    style={{ backgroundColor: persona.color }}
-                  />
-                  <span className="text-sm font-medium">{persona.name}</span>
-                  {isActive && (
-                    <svg
-                      className="w-4 h-4 ml-auto text-blue-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                  <button
+                    onClick={() => handleSelectPersona(persona)}
+                    className={`w-full text-left px-4 py-2 flex items-center gap-2 transition-colors ${
+                      isActive
+                        ? "bg-blue-50 text-blue-900"
+                        : "hover:bg-gray-100 text-gray-900"
+                    }`}
+                    role="option"
+                    aria-selected={isActive}
+                  >
+                    <div
+                      className="w-4 h-4 rounded border border-gray-300"
+                      style={{ backgroundColor: persona.color }}
+                    />
+                    <span className="text-sm font-medium flex-1">{persona.name}</span>
+                    {isActive && (
+                      <svg
+                        className="w-4 h-4 text-blue-600"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                  {/* Delete menu button (three dots) */}
+                  {onDeletePersona && (
+                    <div className="relative">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setMenuOpen(menuOpen === personaKey ? null : personaKey);
+                        }}
+                        className="px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 text-gray-600 hover:text-red-600"
+                        aria-label={`Delete ${persona.name}`}
+                        title={`Delete ${persona.name}`}
+                      >
+                        ⋯
+                      </button>
+                      {/* Delete menu */}
+                      {menuOpen === personaKey && (
+                        <div className="absolute right-0 mt-1 w-32 bg-white border border-red-300 rounded-lg shadow-lg z-50">
+                          <button
+                            onClick={(e) => handleDeleteClick(e, persona)}
+                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition-colors"
+                          >
+                            🗑️ Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
-                </button>
+                </div>
               );
             })}
           </div>
-
           {/* Divider */}
           <div className="border-t border-gray-200" />
 

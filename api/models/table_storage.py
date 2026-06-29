@@ -212,6 +212,60 @@ class TableStorageClient:
         except ResourceNotFoundError:
             return []
 
+    def delete_by_persona(self, persona_name: str) -> int:
+        """
+        Delete all availability entries for a specific persona (cascade delete).
+        Searches all months and removes entries matching the persona name.
+        
+        Args:
+            persona_name: Name of persona to delete
+        
+        Returns:
+            Number of entries deleted
+        
+        Raises:
+            ValueError: If persona_name is invalid
+        """
+        if not persona_name or not isinstance(persona_name, str):
+            raise ValueError("Invalid persona name")
+        
+        table_client = self.get_table_client("Availability")
+        deleted_count = 0
+        
+        try:
+            # Query all entries with matching persona name
+            # Note: Table Storage doesn't support cross-partition queries efficiently,
+            # so we query each month partition and delete matching entries
+            filter_query = f"name eq '{persona_name}'"
+            
+            entities = list(table_client.query_entities(filter_query))
+            
+            # Delete in batches (Table Storage batch operations max 100 per batch)
+            batch_size = 100
+            for i in range(0, len(entities), batch_size):
+                batch = entities[i:i + batch_size]
+                
+                # Use batch delete for efficiency
+                for entity in batch:
+                    table_client.delete_entity(
+                        partition_key=entity["PartitionKey"],
+                        row_key=entity["RowKey"]
+                    )
+                    deleted_count += 1
+            
+            # Log deletion for audit trail
+            import logging
+            logger = logging.getLogger("delete_by_persona")
+            logger.info(f"Deleted {deleted_count} entries for persona: {persona_name}")
+            
+            return deleted_count
+        
+        except Exception as e:
+            import logging
+            logger = logging.getLogger("delete_by_persona")
+            logger.error(f"Error deleting persona {persona_name}: {str(e)}")
+            raise
+
     @staticmethod
     def _entity_to_dict(entity) -> Dict:
         """Convert Table Storage entity to dictionary"""

@@ -1,0 +1,160 @@
+/* Delete Persona Modal Styles */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.delete-persona-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: 32px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-title {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-title.success {
+  color: #22863a;
+}
+
+.modal-title.error {
+  color: #cb2431;
+}
+
+.modal-description {
+  margin: 0 0 24px 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.modal-description.error-message {
+  color: #cb2431;
+  background-color: #fdf5f5;
+  padding: 12px;
+  border-radius: 4px;
+  border-left: 4px solid #cb2431;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* Button Styles */
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #0969da;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0860ca;
+}
+
+.btn-primary:active:not(:disabled) {
+  background-color: #033d8b;
+}
+
+.btn-secondary {
+  background-color: #f6f8fa;
+  color: #24292e;
+  border: 1px solid #d1d5da;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #f3f4f6;
+  border-color: #bcc1ca;
+}
+
+.btn-danger {
+  background-color: #da3633;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #cc2927;
+}
+
+.btn-danger:active:not(:disabled) {
+  background-color: #a61a18;
+}
+
+/* Loading Spinner */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+    border-top-color: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+  .delete-persona-modal {
+    padding: 24px;
+  }
+
+  .modal-title {
+    font-size: 18px;
+  }
+
+  .modal-buttons {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
