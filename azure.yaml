@@ -1,0 +1,13 @@
+name: daboyz-calendar
+environment: prod
+
+services:
+  web:
+    project: ./public
+    language: js
+    host: staticwebapp
+    
+  api:
+    project: ./api
+    language: js
+    host: function

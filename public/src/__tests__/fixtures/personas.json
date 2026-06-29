@@ -1,0 +1,55 @@
+{
+  "personas": [
+    {
+      "name": "Sarah",
+      "color": "#FF0000"
+    },
+    {
+      "name": "Marcus",
+      "color": "#00FF00"
+    },
+    {
+      "name": "Diana",
+      "color": "#0000FF"
+    },
+    {
+      "name": "Alex",
+      "color": "#FFFF00"
+    },
+    {
+      "name": "River",
+      "color": "#FF00FF"
+    }
+  ],
+  "availability": [
+    {
+      "name": "Sarah",
+      "color": "#FF0000",
+      "date": "2026-07-01",
+      "timestamp": 1719806400000
+    },
+    {
+      "name": "Sarah",
+      "color": "#FF0000",
+      "date": "2026-07-02",
+      "timestamp": 1719892800000
+    },
+    {
+      "name": "Marcus",
+      "color": "#00FF00",
+      "date": "2026-07-01",
+      "timestamp": 1719806400000
+    },
+    {
+      "name": "Diana",
+      "color": "#0000FF",
+      "date": "2026-07-03",
+      "timestamp": 1719979200000
+    }
+  ],
+  "currentMonth": "2026-07",
+  "activePersona": {
+    "name": "Sarah",
+    "color": "#FF0000"
+  }
+}
