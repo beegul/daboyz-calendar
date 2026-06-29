@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+coverage/
+*.egg-info/
+venv/
+env/
+.venv/
+api/.venv/
+public/.next/
+.next/
+*.log
+.DS_Store
+Thumbs.db

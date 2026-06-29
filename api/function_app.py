@@ -8,6 +8,7 @@ Endpoints:
 - GET /api/availability/personas - Get personas for month
 - POST /api/availability - Toggle availability
 - DELETE /api/availability - Delete availability entry
+- DELETE /api/personas/{name} - Delete persona and cascade delete all availability entries
 """
 
 import azure.functions as func
@@ -20,6 +21,7 @@ app = func.FunctionApp(http_type='asgi')
 # Import route handlers
 from api.routes.users import get_users, post_user
 from api.routes.availability import get_availability, post_availability, delete_availability
+from api.routes.delete_persona import delete_persona
 from api.models.table_storage import TableStorageClient
 from api.models.availability import validate_month
 
@@ -79,6 +81,13 @@ async def get_personas_all_handler(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500,
             mimetype="application/json"
         )
+
+
+@app.function_name("DeletePersona")
+@app.route(route="personas/{name}", methods=["DELETE"])
+async def delete_persona_handler(req: func.HttpRequest) -> func.HttpResponse:
+    """DELETE /api/personas/{name} - Delete persona and cascade delete all availability entries"""
+    return await delete_persona(req)
 
 
 # Availability endpoints
