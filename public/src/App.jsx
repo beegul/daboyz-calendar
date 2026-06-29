@@ -242,6 +242,8 @@ export default function App() {
         JSON.stringify(updatedPersonas)
       );
 
+      const noPersonasLeft = updatedPersonas.length === 0;
+
       // If deleted persona is active, switch to first remaining or show onboarding
       if (activePersona && activePersona.name === personaName) {
         if (updatedPersonas.length > 0) {
@@ -249,10 +251,10 @@ export default function App() {
           setActivePersona(newActive);
           localStorage.setItem("active_persona", JSON.stringify(newActive));
         } else {
-          // No personas left - show onboarding
+          // No personas left - close modal first, then show onboarding
           setActivePersona(null);
           localStorage.removeItem("active_persona");
-          setShowOnboarding(true);
+          // Don't set showOnboarding here - wait for modal to close
         }
       }
 
@@ -261,6 +263,13 @@ export default function App() {
         resetDeleteState();
         setDeleteModalOpen(false);
         setPersonaToDelete(null);
+        
+        // If no personas left, show onboarding after modal closes
+        if (noPersonasLeft) {
+          setTimeout(() => {
+            setShowOnboarding(true);
+          }, 100);
+        }
       }, 2000);
     }
   };

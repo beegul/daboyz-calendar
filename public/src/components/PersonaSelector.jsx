@@ -114,8 +114,8 @@ function PersonaSelector({
                     onClick={() => handleSelectPersona(persona)}
                     className={`w-full text-left px-4 py-2 flex items-center gap-2 transition-colors ${
                       isActive
-                        ? "bg-blue-50 text-blue-900"
-                        : "hover:bg-gray-100 text-gray-900"
+                        ? "bg-blue-50 dark:bg-blue-900 text-blue-900 dark:text-blue-50"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-gray-100"
                     }`}
                     role="option"
                     aria-selected={isActive}
@@ -127,7 +127,7 @@ function PersonaSelector({
                     <span className="text-sm font-medium flex-1">{persona.name}</span>
                     {isActive && (
                       <svg
-                        className="w-4 h-4 text-blue-600"
+                        className="w-4 h-4 text-blue-600 dark:text-blue-400"
                         fill="currentColor"
                         viewBox="0 0 20 20"
                       >
@@ -147,7 +147,7 @@ function PersonaSelector({
                           e.stopPropagation();
                           setMenuOpen(menuOpen === personaKey ? null : personaKey);
                         }}
-                        className="px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 text-gray-600 hover:text-red-600"
+                        className="px-2 py-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 dark:hover:bg-red-900 text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                         aria-label={`Delete ${persona.name}`}
                         title={`Delete ${persona.name}`}
                       >
@@ -155,10 +155,10 @@ function PersonaSelector({
                       </button>
                       {/* Delete menu */}
                       {menuOpen === personaKey && (
-                        <div className="absolute right-0 mt-1 w-32 bg-white border border-red-300 rounded-lg shadow-lg z-50">
+                        <div className="absolute right-0 mt-1 w-32 bg-white dark:bg-gray-700 border border-red-300 dark:border-red-700 rounded-lg shadow-lg z-50">
                           <button
                             onClick={(e) => handleDeleteClick(e, persona)}
-                            className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 text-sm font-medium rounded-lg transition-colors"
+                            className="w-full text-left px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 text-sm font-medium rounded-lg transition-colors"
                           >
                             🗑️ Delete
                           </button>
@@ -171,12 +171,12 @@ function PersonaSelector({
             })}
           </div>
           {/* Divider */}
-          <div className="border-t border-gray-200" />
+          <div className="border-t border-gray-200 dark:border-gray-600" />
 
           {/* Create new persona button */}
           <button
             onClick={handleCreateNew}
-            className="w-full text-left px-4 py-2 flex items-center gap-2 hover:bg-green-50 text-green-700 transition-colors"
+            className="w-full text-left px-4 py-2 flex items-center gap-2 hover:bg-green-50 dark:hover:bg-green-900 text-green-700 dark:text-green-400 transition-colors"
             role="option"
           >
             <span className="text-lg">➕</span>
