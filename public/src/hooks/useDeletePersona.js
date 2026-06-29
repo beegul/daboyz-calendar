@@ -37,12 +37,18 @@ const useDeletePersona = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || `Failed to delete persona: ${response.status}`
-        );
+        // Try to parse error response as JSON, fallback to status text
+        let errorMessage = `Failed to delete persona: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch (e) {
+          // Response is not JSON, use status text
+        }
+        throw new Error(errorMessage);
       }
 
+      // 204 No Content returns empty body, don't try to parse JSON
       // Success! Log for debugging
       console.log(`[delete] Successfully deleted persona: ${personaName}`);
 

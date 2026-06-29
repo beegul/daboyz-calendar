@@ -122,6 +122,7 @@ export function useAvailability(month) {
       setConflicts([]);
 
       let data;
+      let apiSucceeded = false;
       try {
         const response = await fetchWithTimeout(
           `${API_BASE}/availability?month=${month}`,
@@ -130,6 +131,8 @@ export function useAvailability(month) {
           throw new Error(`Failed to fetch availability: ${response.status}`);
         }
         data = await response.json();
+        apiSucceeded = true;
+        // Clear mock API flag when real API succeeds
         setUseMockAPI(false);
       } catch (err) {
         console.warn(
@@ -137,7 +140,8 @@ export function useAvailability(month) {
           err.message,
         );
         data = await mockAPI.getAvailability(month);
-        setUseMockAPI(true);
+        // Only set useMockAPI to true if we had to use the mock API
+        setUseMockAPI(!apiSucceeded);
       }
 
       // Detect conflicts: entries with same userId/date but different timestamps
