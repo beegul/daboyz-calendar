@@ -76,6 +76,66 @@ export default function App() {
     reset: resetDeleteState,
   } = useDeletePersona();
 
+  // Fetch personas from API on initial mount to ensure we have the latest list
+  // This prevents concurrency issues where personas are created on one device but not synced yet
+  useEffect(() => {
+    const fetchInitialPersonas = async () => {
+      try {
+        const res = await fetch("/api/users");
+        if (res.ok) {
+          const { users: apiList = [] } = await res.json();
+          if (apiList.length > 0) {
+            // API has personas - merge with localStorage
+            const cleanList = apiList.map(({ name, color }) => ({ name, color }));
+            
+            // Get current localStorage value
+            let localPersonas = [];
+            try {
+              const stored = localStorage.getItem("personas_storage");
+              localPersonas = stored ? JSON.parse(stored) : [];
+            } catch {
+              localPersonas = [];
+            }
+            
+            // Merge: keep all API personas, add any local personas not in API
+            const apiNames = new Set(cleanList.map((p) => p.name));
+            const onlyLocal = localPersonas.filter((p) => !apiNames.has(p.name));
+            const merged = [...cleanList, ...onlyLocal];
+            
+            // Only update if there are changes
+            if (JSON.stringify(merged) !== JSON.stringify(localPersonas)) {
+              setPersonas(merged);
+              localStorage.setItem("personas_storage", JSON.stringify(merged));
+              
+              // If activePersona is not in merged list, switch to first persona
+              const activeStr = localStorage.getItem("active_persona");
+              let activePersona = null;
+              try {
+                activePersona = activeStr ? JSON.parse(activeStr) : null;
+              } catch {
+                activePersona = null;
+              }
+              
+              if (activePersona && !merged.some((p) => p.name === activePersona.name)) {
+                if (merged.length > 0) {
+                  setActivePersona(merged[0]);
+                  localStorage.setItem("active_persona", JSON.stringify(merged[0]));
+                } else {
+                  setActivePersona(null);
+                  localStorage.removeItem("active_persona");
+                }
+              }
+            }
+          }
+        }
+      } catch {
+        // Network error - continue with localStorage data
+      }
+    };
+
+    fetchInitialPersonas();
+  }, []); // Run once on mount
+
   // Load availability data
   const isoMonth = getIsoMonth(currentMonth);
   const {
@@ -175,17 +235,8 @@ export default function App() {
   };
 
   const handlePersonaCreate = async (newPersona) => {
-    // Add new persona to list immediately (optimistic)
-    const updatedPersonas = [...personas, newPersona];
-    setPersonas(updatedPersonas);
-    localStorage.setItem("personas_storage", JSON.stringify(updatedPersonas));
-    localStorage.setItem("active_persona", JSON.stringify(newPersona));
-    setActivePersona(newPersona);
-    setShowOnboarding(false);
-
-    // Register persona in the backend Users table so that:
-    //  1. Other devices can discover it via the persona-sync poll
-    //  2. DELETE /api/personas/{name} can cleanly remove it from Users table
+    // First, try to register persona in the backend
+    // This ensures the persona is available to other devices before closing the modal
     try {
       const res = await fetch("/api/users", {
         method: "POST",
@@ -199,11 +250,20 @@ export default function App() {
       
       if (!res.ok) {
         console.warn(`[create] Failed to register persona in Users table: ${res.status}`);
+        // Show error but still accept the persona locally
       }
     } catch (err) {
-      // Non-fatal — persona is saved locally; backend will sync on next retry.
       console.warn("[create] Error registering persona in Users table:", err);
+      // Continue - persona will sync on next retry
     }
+
+    // After backend registration attempt, update local state
+    const updatedPersonas = [...personas, newPersona];
+    setPersonas(updatedPersonas);
+    localStorage.setItem("personas_storage", JSON.stringify(updatedPersonas));
+    localStorage.setItem("active_persona", JSON.stringify(newPersona));
+    setActivePersona(newPersona);
+    setShowOnboarding(false);
   };
 
   const handleSelectPersona = (persona) => {
