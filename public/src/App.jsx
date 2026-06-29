@@ -72,6 +72,7 @@ export default function App() {
     isDeleting: isDeleteInProgress,
     error: deleteError,
     success: deleteSuccess,
+    reset: resetDeleteState,
   } = useDeletePersona();
 
   // Load availability data
@@ -216,6 +217,8 @@ export default function App() {
   };
 
   const handleDeletePersonaClick = (persona) => {
+    // Always reset delete state before opening modal to ensure clean slate
+    resetDeleteState();
     // Show delete confirmation modal
     setPersonaToDelete(persona);
     setDeleteModalOpen(true);
@@ -254,6 +257,7 @@ export default function App() {
 
       // Close modal after success (the 3-second polling will handle backend sync)
       setTimeout(() => {
+        resetDeleteState();
         setDeleteModalOpen(false);
         setPersonaToDelete(null);
       }, 2000);
@@ -261,6 +265,7 @@ export default function App() {
   };
 
   const handleDeleteModalCancel = () => {
+    resetDeleteState();
     setDeleteModalOpen(false);
     setPersonaToDelete(null);
   };
