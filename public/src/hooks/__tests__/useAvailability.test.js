@@ -428,7 +428,7 @@ describe("useAvailability - Error Handling (US1: Offline Detection)", () => {
     const cachedData = [
       { name: "Jack", color: "#FF0000", date: "2024-06-15" },
     ];
-    localStorage.getItem.mockReturnValueOnce(JSON.stringify(cachedData));
+    localStorage.setItem("daboyz_availability", JSON.stringify(cachedData));
     global.fetch.mockRejectedValueOnce(new Error("Network error"));
 
     const { result } = renderHook(() => useAvailability("2024-06"));

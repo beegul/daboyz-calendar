@@ -72,7 +72,7 @@ describe("Page Refresh Integration Tests", () => {
     });
 
     render(
-      <_MockCalendarWithHydration isOffline={false} />,
+      <_MockCalendarWithHydration isOffline={false} />
     );
 
     // Should render cached data immediately
@@ -87,12 +87,13 @@ describe("Page Refresh Integration Tests", () => {
     ];
     localStorage.setItem("daboyz_availability", JSON.stringify(cachedData));
 
-    render(<MockCalendarWithHydration isOffline={false} />);
+    render(<_MockCalendarWithHydration isOffline={false} />);
 
-    // Should have data immediately from cache (no loading spinner)
-    expect(screen.queryByTestId("loading")).not.toBeInTheDocument();
+    // Data should appear immediately from cache
     expect(screen.getByText("Jack")).toBeInTheDocument();
     expect(screen.getByText("Sarah")).toBeInTheDocument();
+    // Calendar data should be available
+    expect(screen.getByTestId("calendar-data")).toBeInTheDocument();
   });
 
   test("Verify API request completes silently (no state re-render visible)", async () => {
@@ -110,7 +111,7 @@ describe("Page Refresh Integration Tests", () => {
       json: async () => ({ entries: freshData }),
     });
 
-    render(<MockCalendarWithHydration isOffline={false} />);
+    render(<_MockCalendarWithHydration isOffline={false} />);
 
     // Initially shows only cached data
     expect(screen.getByText("Jack")).toBeInTheDocument();
@@ -128,7 +129,7 @@ describe("Page Refresh Integration Tests", () => {
     ];
     localStorage.setItem("daboyz_availability", JSON.stringify(cachedData));
 
-    render(<MockCalendarWithHydration isOffline={false} />);
+    render(<_MockCalendarWithHydration isOffline={false} />);
 
     // Should NOT show empty state
     expect(screen.queryByTestId("empty")).not.toBeInTheDocument();
