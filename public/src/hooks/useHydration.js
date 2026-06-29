@@ -67,12 +67,15 @@ export function useHydration(
         const entries = result.entries || result.data || [];
 
         // Silent update: Only call setData if data actually changed
-        // This prevents unnecessary re-renders
+        // This prevents unnecessary re-renders and avoids flickering
         setData((prevData) => {
-          if (JSON.stringify(prevData) !== JSON.stringify(entries)) {
-            console.log(`[sync] Updated ${storageKey} from API`);
+          const prevJSON = JSON.stringify(prevData);
+          const newJSON = JSON.stringify(entries);
+          if (prevJSON !== newJSON) {
+            console.log(`[sync] Updated ${storageKey} from API (${entries.length} entries)`);
             return entries;
           }
+          console.log(`[sync] No changes in ${storageKey}, skipping re-render`);
           return prevData;
         });
       } catch (err) {
