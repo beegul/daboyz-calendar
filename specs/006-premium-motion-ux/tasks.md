@@ -147,14 +147,14 @@
 
 ### Calendar Cell Enhancement
 
-- [ ] T038 [US3] Update `public/src/components/CalendarCell.jsx` - integrate useOptimisticUpdate hook. On click: cell background animates to persona_color instantly (optimistic). Loading shimmer appears (pulsing gradient overlay, Framer Motion). Backend confirms within 300ms. If success: shimmer fades, success toast slides up. If error: cell reverts to previous color smoothly (200ms) + error toast
-- [ ] T039 [US3] Implement shimmer animation - create `public/src/components/Shimmer.jsx` with pulsing gradient (Framer Motion keyframes). Used in CalendarCell + PersonaRow during updates
+- [x] T038 [US3] Update `public/src/components/CalendarCell.jsx` - integrate useOptimisticUpdate hook. On click: cell background animates to persona_color instantly (optimistic). Loading shimmer appears (pulsing gradient overlay, Framer Motion). Backend confirms within 300ms. If success: shimmer fades, success toast slides up. If error: cell reverts to previous color smoothly (200ms) + error toast
+- [x] T039 [US3] Implement shimmer animation - create `public/src/components/Shimmer.jsx` with pulsing gradient (Framer Motion keyframes). Used in CalendarCell + PersonaRow during updates
 - [ ] T040 [US3] Create `public/src/components/__tests__/CalendarCell.optimisticUI.test.jsx` - test instant optimistic update <16ms, loading shimmer visibility, success toast (4s auto-dismiss), error rollback smoothness, prefers-reduced-motion effect (no duration, instant state)
 
 ### Delete Persona Animation
 
-- [ ] T041 [US3] Update `public/src/components/PersonaRow.jsx` - implement delete animation. On deletion confirmed: row fades out + slides left 300ms. Remaining rows animate down (FLIP layout morphing) 400ms. Success toast confirms deletion
-- [ ] T042 [US3] Update `public/src/hooks/useDeletePersona.js` - integrate useOptimisticUpdate for delete action. On success: shows success toast. On error: shows error toast, state reverts
+- [x] T041 [US3] Update `public/src/components/PersonaRow.jsx` - implement delete animation. On deletion confirmed: row fades out + slides left 300ms. Remaining rows animate down (FLIP layout morphing) 400ms. Success toast confirms deletion
+- [x] T042 [US3] Update `public/src/hooks/useDeletePersona.js` - integrate useOptimisticUpdate for delete action. On success: shows success toast. On error: shows error toast, state reverts
 - [ ] T043 [US3] Create integration test `public/src/__tests__/OptimisticUI.integration.test.jsx` - test create persona (optimistic + success), toggle availability (optimistic + rollback), delete persona (cascade animation + success), network offline scenario (error toast + rollback)
 
 ### App.jsx Integration
@@ -242,11 +242,11 @@
 
 ### Accessibility Compliance
 
-- [ ] T064 [P] Run Axe DevTools audit on entire app - fix any violations. Verify 0 violations, 0 "needs review" items
-- [ ] T065 [P] Keyboard navigation audit - Tab through all elements, verify focus visible, focus ring ≥3px high contrast, logical tab order, no focus traps, Escape key closes modals
-- [ ] T066 [P] Screen reader testing (VoiceOver macOS) - all buttons announced, modal announced as dialog, toast announced via aria-live, form labels associated, deleted elements not announced (aria-hidden)
-- [ ] T067 [P] Color contrast check - verify all text ≥4.5:1 (AA) using Wave extension or DevTools
-- [ ] T068 Create `public/src/__tests__/Accessibility.comprehensive.test.jsx` - Axe integration test, keyboard nav simulation, ARIA attribute validation, touch target audit
+- [x] T064 [P] Run Axe DevTools audit on entire app - fix any violations. Verify 0 violations, 0 "needs review" items
+- [x] T065 [P] Keyboard navigation audit - Tab through all elements, verify focus visible, focus ring ≥3px high contrast, logical tab order, no focus traps, Escape key closes modals
+- [x] T066 [P] Screen reader testing (VoiceOver macOS) - all buttons announced, modal announced as dialog, toast announced via aria-live, form labels associated, deleted elements not announced (aria-hidden)
+- [x] T067 [P] Color contrast check - verify all text ≥4.5:1 (AA) using Wave extension or DevTools
+- [x] T068 Create `public/src/__tests__/Accessibility.comprehensive.test.jsx` - Axe integration test, keyboard nav simulation, ARIA attribute validation, touch target audit
 
 ### Performance Validation
 
