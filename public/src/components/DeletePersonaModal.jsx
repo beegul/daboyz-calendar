@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import './DeletePersonaModal.css';
+import { MotionModal } from './MotionModal';
+import { MotionButton } from './MotionButton';
 
 /**
  * DeletePersonaModal Component
@@ -58,95 +59,76 @@ const DeletePersonaModal = ({
   };
 
   return (
-    <div className="modal-overlay" onClick={handleCancel}>
-      <div
-        className="delete-persona-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="delete-modal-title"
-        aria-describedby="delete-modal-description"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {!deleteSuccess && !error && (
-          <>
-            <h2 id="delete-modal-title" className="modal-title">
-              Delete {personaName}?
-            </h2>
-            <p id="delete-modal-description" className="modal-description">
-              This will remove {personaName} and all their calendar entries. This
-              cannot be undone.
-            </p>
-            <div className="modal-buttons">
-              <button
-                className="btn btn-secondary"
-                onClick={handleCancel}
-                disabled={isDeleting}
-                aria-label="Cancel deletion"
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-danger"
-                onClick={handleConfirm}
-                disabled={isDeleting}
-                aria-busy={isDeleting}
-                aria-label={isDeleting ? 'Deleting...' : 'Delete persona'}
-              >
-                {isDeleting ? (
-                  <>
-                    <span className="spinner" aria-hidden="true" />
-                    Deleting...
-                  </>
-                ) : (
-                  'Delete'
-                )}
-              </button>
-            </div>
-          </>
-        )}
+    <MotionModal
+      isOpen={isVisible}
+      onClose={handleCancel}
+      title={
+        !deleteSuccess && !error
+          ? `Delete ${personaName}?`
+          : deleteSuccess
+            ? '✓ Persona Deleted'
+            : '✗ Deletion Failed'
+      }
+    >
+      {!deleteSuccess && !error && (
+        <>
+          <p className="text-gray-600 mb-6">
+            This will remove {personaName} and all their calendar entries. This
+            cannot be undone.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <MotionButton
+              variant="secondary"
+              onClick={handleCancel}
+              disabled={isDeleting}
+            >
+              Cancel
+            </MotionButton>
+            <MotionButton
+              variant="danger"
+              onClick={handleConfirm}
+              disabled={isDeleting}
+              isLoading={isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </MotionButton>
+          </div>
+        </>
+      )}
 
-        {deleteSuccess && (
-          <>
-            <h2 className="modal-title success">✓ Persona Deleted</h2>
-            <p className="modal-description">
-              {personaName} and all their calendar entries have been removed.
-            </p>
-            <div className="modal-buttons">
-              <button
-                className="btn btn-primary"
-                onClick={handleCancel}
-                aria-label="Close success message"
-              >
-                Close
-              </button>
-            </div>
-          </>
-        )}
+      {deleteSuccess && (
+        <>
+          <p className="text-gray-600 mb-6">
+            {personaName} and all their calendar entries have been removed.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <MotionButton variant="primary" onClick={handleCancel}>
+              Close
+            </MotionButton>
+          </div>
+        </>
+      )}
 
-        {error && (
-          <>
-            <h2 className="modal-title error">✗ Deletion Failed</h2>
-            <p className="modal-description error-message">{error}</p>
-            <div className="modal-buttons">
-              <button
-                className="btn btn-secondary"
-                onClick={handleCancel}
-                aria-label="Cancel deletion"
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary"
-                onClick={handleRetry}
-                aria-label="Retry deletion"
-              >
-                Retry
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+      {error && (
+        <>
+          <p className="text-red-600 mb-6 font-medium">{error}</p>
+          <div className="flex gap-3 justify-end">
+            <MotionButton
+              variant="secondary"
+              onClick={handleCancel}
+            >
+              Cancel
+            </MotionButton>
+            <MotionButton
+              variant="primary"
+              onClick={handleRetry}
+            >
+              Retry
+            </MotionButton>
+          </div>
+        </>
+      )}
+    </MotionModal>
   );
 };
 

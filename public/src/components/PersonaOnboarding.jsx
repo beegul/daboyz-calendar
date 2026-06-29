@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
 import {
   validatePersonaUniqueness,
   isValidHexColor,
   normalizePersonaName,
 } from "../utils/validation";
+import { MotionModal } from "./MotionModal";
+import { MotionButton } from "./MotionButton";
+import { useToast } from "../hooks/useToast";
+import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 
 /**
  * PersonaOnboarding Component
@@ -183,25 +188,25 @@ function PersonaOnboarding({ onPersonaCreate }) {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Create Your Persona
-        </h2>
-        <p className="text-gray-600 text-sm mb-6">
-          Welcome! Create a unique persona to start marking your availability.
-        </p>
+    <MotionModal 
+      isOpen={true} 
+      onClose={null}
+      title="Create Your Persona"
+    >
+      <p className="text-gray-600 text-sm mb-6">
+        Welcome! Create a unique persona to start marking your availability.
+      </p>
 
-        {personasError && !loadingPersonas && (
-          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
-            <p>
-              Note: Could not validate personas online ({personasError}).
-              Proceeding without collision check.
-            </p>
-          </div>
-        )}
+      {personasError && !loadingPersonas && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-800">
+          <p>
+            Note: Could not validate personas online ({personasError}).
+            Proceeding without collision check.
+          </p>
+        </div>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Input */}
           <div>
             <label
@@ -282,32 +287,21 @@ function PersonaOnboarding({ onPersonaCreate }) {
           </div>
 
           {/* Create Button */}
-          <button
+          <MotionButton
             type="submit"
+            variant={isFormValid ? "primary" : "disabled"}
             disabled={!isFormValid}
-            className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-              isFormValid
-                ? "bg-blue-500 text-white hover:bg-blue-600 cursor-pointer"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-            aria-label={
-              isFormValid
-                ? "Create persona button"
-                : "Create persona button (disabled - errors present)"
-            }
-            title={
-              hasErrors ? "Fix validation errors before creating persona" : ""
-            }
+            isLoading={loadingPersonas || isValidating}
+            className="w-full"
           >
             {loadingPersonas
               ? "Loading..."
               : isValidating
                 ? "Validating..."
                 : "Create Persona"}
-          </button>
+          </MotionButton>
         </form>
-      </div>
-    </div>
+    </MotionModal>
   );
 }
 

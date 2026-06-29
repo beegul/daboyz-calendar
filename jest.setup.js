@@ -1,15 +1,30 @@
 import '@testing-library/jest-dom'
 
-// Mock window.matchMedia for responsive design tests
+// Mock window.matchMedia for responsive design tests and accessibility
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => {
-    // Default: return false for all queries except prefers-color-scheme
+    // Default: return false for all queries
     let matches = false
     
-    // Specific handling for prefers-color-scheme (dark mode detection)
+    // Specific handling for color scheme detection
     if (query === '(prefers-color-scheme: dark)') {
       matches = false // Default to light mode in tests
+    }
+    
+    // Specific handling for reduced motion (accessibility preference)
+    // By default, tests assume NO reduced motion preference
+    // Individual tests can override this using global.testPrefersReducedMotion
+    if (query === '(prefers-reduced-motion: reduce)') {
+      matches = global.testPrefersReducedMotion || false
+    }
+    
+    // Hover capability detection
+    if (query === '(hover: hover)') {
+      matches = true // Default: tests assume desktop with hover support
+    }
+    if (query === '(hover: none)') {
+      matches = false // Default: not a touch-only device
     }
     
     return {

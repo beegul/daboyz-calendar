@@ -26,6 +26,8 @@ export const MEDIA_QUERIES = {
   noHover: "(hover: none)", // Mobile (no hover)
   prefersDarkMode: "(prefers-color-scheme: dark)",
   prefersLightMode: "(prefers-color-scheme: light)",
+  prefersReducedMotion: "(prefers-reduced-motion: reduce)", // Accessibility: user prefers minimal animations
+  noReducedMotion: "(prefers-reduced-motion: no-preference)", // User allows animations
 };
 
 /**

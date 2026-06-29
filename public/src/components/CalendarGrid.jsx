@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import AvailabilityBadge from "./AvailabilityBadge";
 import AvailabilityModal from "./AvailabilityModal";
 
@@ -105,8 +106,16 @@ export default function CalendarGrid({
         ))}
       </div>
 
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7">
+      {/* Calendar grid with month transition animations */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentMonth.toISOString().split('T')[0]}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          className="grid grid-cols-7"
+        >
         {calendarDays.map((date, index) => {
           const availability = date ? getAvailabilityForDate(date) : [];
           const isCurrentMonth =
@@ -170,7 +179,8 @@ export default function CalendarGrid({
             </div>
           );
         })}
-      </div>
+        </motion.div>
+      </AnimatePresence>
 
       {/* Availability Modal - Shows all personas for a date */}
       <AvailabilityModal

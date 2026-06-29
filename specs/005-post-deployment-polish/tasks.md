@@ -498,6 +498,40 @@ If issues discovered in production:
 
 ---
 
+## Phase 8: Convergence (Test Coverage + Month Navigation Fix)
+
+**Purpose**: Close Constitution II test-coverage gaps introduced by bug-fix commits, and fix stale entries on month navigation
+
+- [ ] T054 [P] Add useAvailability test: `allPersonas` derives unique personas from entries per Constitution II
+  - File: `public/src/hooks/__tests__/useAvailability.test.js`
+  - Test: When entries contain `[{name:"Jack",color:"#3b82f6",...},{name:"Jack",...},{name:"Beegul",color:"#ef4444",...}]`, `allPersonas` returns `[{name:"Jack",color:"#3b82f6"},{name:"Beegul",color:"#ef4444"}]`
+  - Test: When entries is `[]`, `allPersonas` returns `[]`
+  - Source: Constitution II (tests before merge), `allPersonas` (useAvailability.js line 409)
+
+- [ ] T055 [P] Add useAvailability test: background polls do NOT set `loading=true` per Constitution II
+  - File: `public/src/hooks/__tests__/useAvailability.test.js`
+  - Test: Seed localStorage cache for month, render hook — `loading` initialises `false`
+  - Test: After initial fetch completes, advance timers by polling interval — verify `loading` never becomes `true` again
+  - Source: Constitution II, `isInitialFetchRef` (useAvailability.js line 133)
+
+- [ ] T056 [P] Add App-level test: cross-device persona auto-merge per Constitution II
+  - File: `public/src/__tests__/integration/cross-device-personas.test.js` (new)
+  - Test: Render App with empty `personas_storage` localStorage; after `useAvailability` resolves entries for "Jack", verify "Jack" persona appears in persona selector without user action
+  - Source: Constitution II, `apiPersonas` merge (App.jsx line 94)
+
+- [ ] T057 [P] Add Python unit test: DELETE /api/personas/{name} returns 204 when persona has no availability entries per Constitution II
+  - File: `tests/unit/test_delete_persona.py` (new or existing)
+  - Test: Call `delete_persona` route with a name that has zero entries in Availability table — assert 204
+  - Test: Call with valid name that has 3 entries — assert 204 and entries deleted
+  - Source: Constitution II, `delete_persona.py` (Users-table check removed)
+
+- [ ] T058 Reset `isInitialFetchRef` on month change to prevent stale entries during navigation (partial SC-002)
+  - File: `public/src/hooks/useAvailability.js`
+  - Change: In the `useEffect` that triggers the debounced fetch on month change, reset `isInitialFetchRef.current` to `getCachedEntries(month) === null` before calling `fetchAvailability`
+  - Expected: Navigating to a month with no cache shows loading spinner; navigating to a cached month renders instantly
+
+---
+
 ## Related Documentation
 
 - **Specification**: [spec.md](spec.md) - User stories, acceptance criteria

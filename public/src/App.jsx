@@ -8,6 +8,7 @@ import CalendarGrid from "./components/CalendarGrid";
 import MonthNavigation from "./components/MonthNavigation";
 import DarkModeToggle from "./components/DarkModeToggle";
 import OfflineWarning from "./components/OfflineWarning";
+import { ToastProvider } from "./context/ToastContext";
 import { useAvailability } from "./hooks/useAvailability";
 import { useDarkMode } from "./hooks/useDarkMode";
 import useDeletePersona from "./hooks/useDeletePersona";
@@ -289,11 +290,12 @@ export default function App() {
   };
 
   return (
-    <div
-      className={`min-h-screen ${isDarkMode ? "dark bg-gray-900" : "bg-gray-100"}`}
-    >
-      {/* Offline warning banner */}
-      <OfflineWarning isOffline={useMockAPI} />
+    <ToastProvider>
+      <div
+        className={`min-h-screen ${isDarkMode ? "dark bg-gray-900" : "bg-gray-100"}`}
+      >
+        {/* Offline warning banner */}
+        <OfflineWarning isOffline={useMockAPI} />
       
       {/* Persona Onboarding Modal */}
       {showOnboarding && (
@@ -429,6 +431,7 @@ export default function App() {
           )}
         </>
       )}
-    </div>
+      </div>
+    </ToastProvider>
   );
 }
