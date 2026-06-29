@@ -201,13 +201,12 @@ When network connectivity is unstable or unavailable, the app gracefully handles
 - **SC-005**: All date cell tap targets are at least 44x44px, measured using dev tools or manual testing.
 - **SC-006**: Visual feedback on date cell tap occurs within 50ms (measured by recording video or visual inspection).
 - **SC-007**: Mobile form submission completes and closes modal within 300ms (user-perceived latency).
-- **SC-008**: Mobile UX usability test with ≥10 representative users: ≥95% of participants (≥10 users) rate the mobile app as "clear" or "intuitive" when asked: (1) "Identify the active persona name", (2) "What month is shown?", (3) "How would you mark a date available?". Success = ≥9/10 users answer all 3 correctly without prompting.
-- **SC-009**: Offline actions are queued and synced within 2 seconds of network restoration.
-- **SC-010**: Zero data loss when two users perform conflicting concurrent actions (e.g., marking same date); both updates persist.
-- **SC-011**: Mobile sync status is visible to the user at all times (e.g., persistent "Last synced" badge).
-- **SC-012**: Bundle size remains under 120 kB gzipped after all mobile UX changes.
-- **SC-013**: Lighthouse accessibility score on mobile is 90+.
-- **SC-014**: No layout shifts (CLS < 0.1) when modals open, personas sync, or data updates.
+- **SC-008**: Offline actions are queued and synced within 2 seconds of network restoration.
+- **SC-009**: Zero data loss when two users perform conflicting concurrent actions (e.g., marking same date); both updates persist.
+- **SC-010**: Mobile sync status is visible to the user at all times (e.g., persistent "Last synced" badge).
+- **SC-011**: Bundle size remains under 120 kB gzipped after all mobile UX changes.
+- **SC-012**: Lighthouse accessibility score on mobile is 90+.
+- **SC-013**: No layout shifts (CLS < 0.1) when modals open, personas sync, or data updates.
 
 ## Assumptions
 

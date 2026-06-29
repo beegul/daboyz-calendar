@@ -12,7 +12,12 @@ function getFirstDayOfMonth(date) {
 }
 
 function formatDate(date) {
-  return date.toISOString().split("T")[0];
+  // Use local date values (not UTC) to avoid timezone shifting
+  // Example: June 1 00:00 in UTC+5 would be May 31 19:00 UTC with toISOString()
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export default function CalendarGrid({

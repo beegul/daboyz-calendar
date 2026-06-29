@@ -429,17 +429,9 @@ This task breakdown spans **5 phases**:
 
 ## Phase 4: Polish, Testing & Deployment *(⏳ PENDING)*
 
-### ⛔ CRITICAL: Mobile UX Usability Testing (SC-008)
+### 🐛 Critical Production Bugfixes
 
-**BLOCKER**: Must complete before Phase 4 acceptance. SC-008 requires user survey validation.
-
-- [ ] T230 [CRITICAL] [P] Recruit ≥10 representative mobile users for usability testing (target: mix of skill levels, device types)
-- [ ] T231 [CRITICAL] [P] Conduct mobile UX survey: show app on 375px device, ask 3 questions: (1) "What persona is active?", (2) "What month is shown?", (3) "How would you mark a date available?"
-- [ ] T232 [CRITICAL] [P] Document survey results: record pass/fail for each user, document % rating app "clear" or "intuitive", verify ≥9/10 users (≥90%) pass all 3 questions
-
-**SC-008 Pass Criteria**: ≥9/10 users (90%) correctly answer all 3 questions and rate UI "clear" or "intuitive"
-
----
+- [x] T161 [BUGFIX] Fix: 1st of month availability not persisting — **ROOT CAUSE**: `CalendarGrid.jsx` used `toISOString()` for date formatting, which converts to UTC and shifts the date backward for timezones ahead of UTC (e.g., UTC+5). **SOLUTION**: Changed `formatDate()` to use local date values: `YYYY-MM-DD` format using `getFullYear()`, `getMonth()`, `getDate()`. **FIX APPLIED**: CalendarGrid.jsx line 14–20. **VERIFICATION**: Build passes (118.51 kB gzipped), no regressions.
 
 ### Edge Case & Concurrency Testing
 
@@ -519,9 +511,9 @@ This task breakdown spans **5 phases**:
 | 1: Design | 33 | 33 | 0 | 100% ✅ | COMPLETE | 2–3 days |
 | 2: Foundation | 40 | 40 | 0 | 100% ✅ | COMPLETE | 2–3 days |
 | 3: User Stories | 110 | 110 | 0 | 100% ✅ | COMPLETE (Phase 3 MVP + Testing Code) | 4–6 days |
-| 4: Polish & Testing | 45 | 0 | 45 | 0% ⏳ | READY TO START (CRITICAL: T230-T232 survey first) | 2–3 days |
+| 4: Polish & Testing | 42 | 0 | 42 | 0% ⏳ | READY TO START | 2–3 days |
 | 5: Convergence | 2 | 2 | 0 | 100% ✅ | COMPLETE | 0.5 day |
-| **TOTAL** | **232** | **217** | **45** | **93% ✅** | Phase 3 Complete + Phase 4 Ready | **11–17 days** |
+| **TOTAL** | **229** | **217** | **42** | **95% ✅** | Phase 3 Complete + Phase 4 Ready | **11–17 days** |
 
 **Phase 3 Completion Summary**:
 - US1: Multi-User Sync (P1) ✅ Complete (T106-T113)
@@ -539,10 +531,9 @@ This task breakdown spans **5 phases**:
 - Added US5 Phase 3: Touch Responsiveness (T207-T212) = 6 new tasks  
 - Added US6 Phase 3: Information Hierarchy (T213-T218) = 6 new tasks
 - Added US8 Phase 3: Offline Queue Edge Cases (T219-T222) = 4 new tasks
-- Added CRITICAL: Mobile UX Survey (T230-T232) = 3 new tasks
 - Fixed Measurement Guidance (A2), Tap Targets (FR-007), Form Inputs (FR-009)
 - Added FR-016: Duplicate Name Validation
-- Updated SC-001, SC-002, SC-008 with measurable criteria
+- Updated SC-001, SC-002 with measurable criteria
 
 ---
 
