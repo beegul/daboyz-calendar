@@ -185,7 +185,7 @@ export default function App() {
     //  1. Other devices can discover it via the persona-sync poll
     //  2. DELETE /api/personas/{name} can cleanly remove it from Users table
     try {
-      await fetch("/api/users", {
+      const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -194,8 +194,13 @@ export default function App() {
           color: newPersona.color,
         }),
       });
-    } catch {
+      
+      if (!res.ok) {
+        console.warn(`[create] Failed to register persona in Users table: ${res.status}`);
+      }
+    } catch (err) {
       // Non-fatal — persona is saved locally; backend will sync on next retry.
+      console.warn("[create] Error registering persona in Users table:", err);
     }
   };
 
@@ -247,7 +252,33 @@ export default function App() {
         }
       }
 
-      // Close modal after success (after brief delay to show success message)
+      // Manually sync personas from backend immediately to ensure deletion propagates
+      // Use a small delay to allow backend to complete the deletion
+      setTimeout(async () => {
+        try {
+          const res = await fetch("/api/users");
+          if (res.ok) {
+            const { users: apiList = [] } = await res.json();
+            if (apiList.length > 0) {
+              const apiNames = new Set(apiList.map((p) => p.name));
+              setPersonas((prev) => {
+                const synced = prev.filter((p) => apiNames.has(p.name));
+                const localNames = new Set(synced.map((p) => p.name));
+                const fromAPI = apiList
+                  .filter((p) => !localNames.has(p.name))
+                  .map(({ name, color }) => ({ name, color }));
+                const result = [...synced, ...fromAPI];
+                localStorage.setItem("personas_storage", JSON.stringify(result));
+                return result;
+              });
+            }
+          }
+        } catch {
+          // Sync failure is non-fatal
+        }
+      }, 300);
+
+      // Close modal after success
       setTimeout(() => {
         setDeleteModalOpen(false);
         setPersonaToDelete(null);

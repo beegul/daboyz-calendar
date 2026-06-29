@@ -58,6 +58,7 @@ async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:
         deleted_count = client.delete_by_persona(persona_name)
         
         # Also delete the persona from Users table
+        users_deleted = False
         try:
             # Find the user by name and delete by RowKey
             users = client.get_users()
@@ -67,16 +68,26 @@ async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:
             )
             
             if user_to_delete:
+                user_id = user_to_delete.get("id")
+                if not user_id:
+                    # Fallback: use persona_name lowercased with spaces replaced
+                    user_id = persona_name.lower().replace(" ", "_")
+                
                 table_client = client.get_table_client("Users")
                 table_client.delete_entity(
                     partition_key="user",
-                    row_key=user_to_delete.get("id", persona_name)
+                    row_key=user_id
                 )
+                users_deleted = True
+            else:
+                # Persona not found in Users table - this is OK, maybe it was only in localStorage
+                users_deleted = True
         except Exception as e:
             # Log but don't fail if user deletion fails
             import logging
             logger = logging.getLogger("delete_persona")
             logger.warning(f"Could not delete persona from Users table: {str(e)}")
+            # Don't set users_deleted = True here, let caller know something went wrong
         
         # Return 204 No Content on success
         return func.HttpResponse(
