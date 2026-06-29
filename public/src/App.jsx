@@ -126,6 +126,25 @@ export default function App() {
                 }
               }
             }
+          } else {
+            // API returned empty list - all personas were deleted on another device
+            // Clear local personas and show onboarding
+            let localPersonas = [];
+            try {
+              const stored = localStorage.getItem("personas_storage");
+              localPersonas = stored ? JSON.parse(stored) : [];
+            } catch {
+              localPersonas = [];
+            }
+            
+            if (localPersonas.length > 0) {
+              // We have local personas but API says they're all gone
+              setPersonas([]);
+              localStorage.removeItem("personas_storage");
+              localStorage.removeItem("active_persona");
+              setActivePersona(null);
+              setShowOnboarding(true);
+            }
           }
         }
       } catch {
@@ -166,9 +185,19 @@ export default function App() {
         const res = await fetch("/api/users");
         if (!res.ok) return;
         const { users: apiList = [] } = await res.json();
-        // If API returns nothing it may be offline or the table is still empty —
-        // don't wipe local state in that case.
-        if (apiList.length === 0) return;
+        
+        // If API returns empty list, check if we have local personas to clean up
+        if (apiList.length === 0) {
+          // All personas deleted on another device - clear local state if needed
+          if (personas.length > 0) {
+            setPersonas([]);
+            localStorage.removeItem("personas_storage");
+            localStorage.removeItem("active_persona");
+            setActivePersona(null);
+            setShowOnboarding(true);
+          }
+          return;
+        }
 
         const apiNames = new Set(apiList.map((p) => p.name));
 
