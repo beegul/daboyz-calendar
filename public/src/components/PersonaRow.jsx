@@ -17,6 +17,7 @@ import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getPreset } from '../utils/motionConfig'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useToast } from '../hooks/useToast'
 import { MotionButton } from './MotionButton'
 
 export const PersonaRow = ({
@@ -28,13 +29,16 @@ export const PersonaRow = ({
   const [isDeleting, setIsDeleting] = useState(false)
   const [isHovering, setIsHovering] = useState(false)
   const userPreferences = usePrefersReducedMotion()
+  const toast = useToast()
 
   const handleDelete = async () => {
     setIsDeleting(true)
     try {
       await onDelete(persona.name)
+      toast.success(`${persona.name} has been deleted`)
     } catch (error) {
       setIsDeleting(false)
+      toast.error(`Failed to delete ${persona.name}`)
     }
   }
 

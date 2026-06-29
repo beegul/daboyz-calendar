@@ -21,6 +21,8 @@ import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import { getPreset } from '../utils/motionConfig'
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion'
+import { useToast } from '../hooks/useToast'
+import { useOptimisticUpdate } from '../hooks/useOptimisticUpdate'
 
 const personaColors = {
   default: 'bg-gray-100',
@@ -38,35 +40,36 @@ export const CalendarCell = ({
   isLoading = false,
 }) => {
   const [localAvailability, setLocalAvailability] = useState(availability)
-  const [isUpdating, setIsUpdating] = useState(false)
   const userPreferences = usePrefersReducedMotion()
+  const toast = useToast()
 
   const dateStr = date.toISOString().split('T')[0]
   const isToday = new Date().toDateString() === date.toDateString()
 
-  const handleToggle = async (personaName) => {
-    if (isUpdating) return
+  const handleToggleAvailability = async (personaName) => {
+    const newValue = !localAvailability[personaName]
+    
+    try {
+      await onToggle(dateStr, personaName, newValue)
+      toast.success(`${personaName}'s availability updated`)
+      return true
+    } catch (error) {
+      toast.error(`Failed to update ${personaName}'s availability`)
+      return false
+    }
+  }
 
-    // Optimistic update - instant UI feedback
-    const oldValue = localAvailability[personaName]
+  const [optimisticAvailability, updateAvailability, isUpdating] = useOptimisticUpdate(
+    localAvailability,
+    handleToggleAvailability
+  )
+
+  const handleToggle = (personaName) => {
     setLocalAvailability(prev => ({
       ...prev,
-      [personaName]: !prev[personaName],
+      [personaName]: optimisticAvailability[personaName],
     }))
-    setIsUpdating(true)
-
-    try {
-      // Call backend async
-      await onToggle(dateStr, personaName, !oldValue)
-    } catch (error) {
-      // Rollback on error
-      setLocalAvailability(prev => ({
-        ...prev,
-        [personaName]: oldValue,
-      }))
-    } finally {
-      setIsUpdating(false)
-    }
+    updateAvailability(personaName)
   }
 
   const fillPreset = getPreset('cellFill', userPreferences)
@@ -88,7 +91,7 @@ export const CalendarCell = ({
       {/* Personas grid */}
       <div className="grid gap-1">
         {personas.map((persona) => {
-          const isAvailable = localAvailability[persona.name]
+          const isAvailable = optimisticAvailability[persona.name]
           const bgColor = isAvailable ? personaColors[persona.name] || personaColors.default : 'bg-gray-100'
 
           return (
