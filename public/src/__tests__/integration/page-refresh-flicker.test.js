@@ -6,7 +6,7 @@ import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 
 // Mock component that uses hydration
-const MockCalendarWithHydration = ({ isOffline }) => {
+const _MockCalendarWithHydration = ({ isOffline }) => {
   const [data, setData] = React.useState(() => {
     // Simulate hydration: load from localStorage immediately
     const cached = localStorage.getItem("daboyz_availability");
@@ -71,8 +71,8 @@ describe("Page Refresh Integration Tests", () => {
       json: async () => ({ entries: cachedData }),
     });
 
-    const { rerender } = render(
-      <MockCalendarWithHydration isOffline={false} />,
+    render(
+      <_MockCalendarWithHydration isOffline={false} />,
     );
 
     // Should render cached data immediately

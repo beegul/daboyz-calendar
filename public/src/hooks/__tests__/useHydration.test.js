@@ -2,7 +2,7 @@
  * Tests for useHydration hook
  * Verifies that page hydration from localStorage prevents flicker on refresh
  */
-import { renderHook, act, waitFor } from "@testing-library/react";
+import { renderHook, waitFor } from "@testing-library/react";
 import { useHydration } from "../useHydration";
 
 // Mock fetch
@@ -66,7 +66,7 @@ describe("useHydration Hook", () => {
 
     const renderSpy = jest.fn();
 
-    const TestComponent = () => {
+    const _TestComponent = () => {
       const hydrated = useHydration("daboyz_availability", []);
       renderSpy();
       return <div>{hydrated.data.length}</div>;

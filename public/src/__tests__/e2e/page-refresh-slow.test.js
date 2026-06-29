@@ -6,7 +6,7 @@ import React from "react";
 import { render, screen, waitFor, act } from "@testing-library/react";
 
 // Mock component simulating Calendar behavior with hydration
-const MockCalendarSlowNetwork = ({ slowNetworkMs = 3000 }) => {
+const _MockCalendarSlowNetwork = ({ slowNetworkMs = 3000 }) => {
   const [data, setData] = React.useState(() => {
     const cached = localStorage.getItem("daboyz_availability");
     return cached ? JSON.parse(cached) : [];
@@ -70,8 +70,8 @@ describe("Page Refresh on Slow Network (E2E)", () => {
     ];
     localStorage.setItem("daboyz_availability", JSON.stringify(cachedData));
 
-    const { rerender } = render(
-      <MockCalendarSlowNetwork slowNetworkMs={3000} />,
+    render(
+      <_MockCalendarSlowNetwork slowNetworkMs={3000} />,
     );
 
     // Should show cached data IMMEDIATELY (before any network delay)
