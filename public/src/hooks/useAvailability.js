@@ -5,6 +5,8 @@ import { useIdleTimeout } from "./useIdleTimeout";
 const API_BASE = "/api";
 const DEBOUNCE_DELAY = 500; // 500ms debounce for month changes
 const API_TIMEOUT = 3000; // 3 second timeout before falling back to mock
+const AGGRESSIVE_POLLING_INTERVAL = 2000; // 2 seconds when active (for real-time cross-device sync)
+const IDLE_POLLING_INTERVAL = 300000; // 5 minutes when idle (cost protection)
 
 /**
  * Detect conflicts between old and new entries
@@ -63,13 +65,19 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT) {
 
 /**
  * Custom hook for managing availability data
- * Handles fetching, polling, and state management
+ * Handles fetching, polling, and real-time cross-device sync
  * Falls back to mock API if real API is unavailable
  *
+ * REAL-TIME CROSS-DEVICE SYNC STRATEGY:
+ * - Aggressive polling: 2 seconds when active (down from 5s)
+ * - Immediate refresh when tab becomes visible (visibilitychange event)
+ * - Immediate refresh when window gains focus (focus event)
+ * - Immediate refresh after any change (toggle/delete) completes
+ * 
  * Cost Protection Features:
  * - Stops polling when tab is hidden (Page Visibility API)
  * - Throttles polling to 5 minutes when idle for 10+ minutes
- * - Resumes normal polling (5s) when tab becomes visible or user becomes active
+ * - Resumes to 2-second polling when tab becomes visible or user becomes active
  *
  * @param {string} month - Month string in format YYYY-MM (e.g., "2024-06")
  * @returns {{
@@ -164,14 +172,22 @@ export function useAvailability(month) {
   }, [month, fetchAvailability]);
 
   // Adaptive polling with Page Visibility API and Idle tracking
-  // Polling frequency:
+  // Polling frequency for REAL-TIME CROSS-DEVICE SYNC:
   // - 0 (stopped) when tab is hidden
   // - 5 minutes (300000ms) when user idle for 10+ minutes
-  // - 5 seconds (5000ms) when visible and active
+  // - 2 seconds (2000ms) when visible and active (aggressive for real-time sync)
+  // - IMMEDIATE refresh when tab becomes visible or window gains focus
   useEffect(() => {
     // Handle Page Visibility API
     const handleVisibilityChange = () => {
-      setVisibility(document.visibilityState);
+      const newVisibility = document.visibilityState;
+      setVisibility(newVisibility);
+      
+      // IMMEDIATE sync when tab becomes visible (high priority for cross-device sync)
+      if (newVisibility === "visible") {
+        console.log("[sync] Tab became visible - fetching latest data immediately");
+        fetchAvailability();
+      }
     };
 
     // Handle blur/focus events as fallback for older browsers
@@ -181,6 +197,9 @@ export function useAvailability(month) {
 
     const handleFocus = () => {
       setVisibility("visible");
+      // IMMEDIATE sync when window gains focus (high priority for cross-device sync)
+      console.log("[sync] Window gained focus - fetching latest data immediately");
+      fetchAvailability();
     };
 
     // Add event listeners
@@ -198,7 +217,7 @@ export function useAvailability(month) {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [fetchAvailability]);
 
   // Polling interval management - updates frequency based on visibility and idle state
   useEffect(() => {
@@ -209,17 +228,18 @@ export function useAvailability(month) {
     }
 
     // Determine polling frequency based on visibility and idle state
+    // (note: immediate syncs happen via visibility/focus event handlers above)
     let pollingFrequency;
 
     if (visibility === "hidden") {
       // Tab is hidden: stop polling (frequency = 0)
       pollingFrequency = 0;
     } else if (isIdle) {
-      // Tab visible but user idle: throttle to 5 minutes
-      pollingFrequency = 300000; // 5 minutes
+      // Tab visible but user idle: throttle to 5 minutes (cost protection)
+      pollingFrequency = IDLE_POLLING_INTERVAL; // 300000ms
     } else {
-      // Tab visible and user active: normal polling
-      pollingFrequency = 5000; // 5 seconds
+      // Tab visible and user active: AGGRESSIVE polling (2 seconds for real-time cross-device sync)
+      pollingFrequency = AGGRESSIVE_POLLING_INTERVAL; // 2000ms
     }
 
     // Set new interval if frequency is greater than 0
@@ -278,6 +298,14 @@ export function useAvailability(month) {
         }
 
         setLastSync(new Date().toISOString());
+        
+        // IMPORTANT: Fetch fresh data immediately to ensure cross-device sync
+        // This ensures all clients see the latest state right after any change
+        setTimeout(() => {
+          console.log("[sync] Toggle complete - fetching latest data for cross-device sync");
+          fetchAvailability();
+        }, 100);
+        
         return data;
       } catch (err) {
         setError(err.message);
@@ -285,7 +313,7 @@ export function useAvailability(month) {
         throw err;
       }
     },
-    [entries],
+    [entries, fetchAvailability],
   );
 
   const deleteAvailability = useCallback(
@@ -322,13 +350,20 @@ export function useAvailability(month) {
           ),
         );
         setLastSync(new Date().toISOString());
+        
+        // IMPORTANT: Fetch fresh data immediately to ensure cross-device sync
+        // This ensures all clients see the latest state right after any change
+        setTimeout(() => {
+          console.log("[sync] Delete complete - fetching latest data for cross-device sync");
+          fetchAvailability();
+        }, 100);
       } catch (err) {
         setError(err.message);
         console.error("Error deleting availability:", err);
         throw err;
       }
     },
-    [entries],
+    [entries, fetchAvailability],
   );
 
   return {
