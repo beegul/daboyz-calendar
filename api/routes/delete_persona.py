@@ -60,7 +60,7 @@ async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:
         # Also delete the persona from Users table
         users_deleted = False
         try:
-            # Find the user by name and delete by RowKey
+            # Find the user by name and delete by RowKey (the actual database key)
             users = client.get_users()
             user_to_delete = next(
                 (u for u in users if u.get("name") == persona_name),
@@ -68,15 +68,16 @@ async def delete_persona(req: func.HttpRequest) -> func.HttpResponse:
             )
             
             if user_to_delete:
-                user_id = user_to_delete.get("id")
-                if not user_id:
-                    # Fallback: use persona_name lowercased with spaces replaced
-                    user_id = persona_name.lower().replace(" ", "_")
+                # Use RowKey directly (the authoritative table key) instead of id property
+                row_key = user_to_delete.get("RowKey")
+                if not row_key:
+                    # Fallback: reconstruct from persona name
+                    row_key = persona_name.lower().replace(" ", "_")
                 
                 table_client = client.get_table_client("Users")
                 table_client.delete_entity(
                     partition_key="user",
-                    row_key=user_id
+                    row_key=row_key
                 )
                 users_deleted = True
             else:
