@@ -9,3 +9,4 @@ jest.config.cjs
 jest.setup.js
 .vscode/
 .idea/
+cleanup-report-*.tmp

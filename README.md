@@ -2,6 +2,12 @@
 
 Shared availability calendar with React frontend and Azure Functions API.
 
+## Repository Hygiene
+
+- Follow `docs/repo-hygiene.md` for keep/remove/defer rules.
+- Do not commit one-off status reports or temporary generated outputs.
+- For cleanup changes, record rationale and validation evidence before merge.
+
 ## Supported Local Prerequisites
 
 - Node.js 20 LTS (recommended for Azure Functions Core Tools compatibility)

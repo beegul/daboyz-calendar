@@ -61,3 +61,7 @@ local.settings.json
 # System
 .DS_Store
 Thumbs.db
+
+# Cleanup policy artifacts
+cleanup-report-*.tmp
+inventory-draft-*.md
