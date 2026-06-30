@@ -36,6 +36,7 @@ export function MobilePersonaSelector({
     <select
       value={activePersona?.name || ''}
       onChange={handleSelectChange}
+      aria-label="Mobile persona selector"
       className={`w-full px-4 py-3 rounded-lg border-2 text-sm font-medium ${
         isDarkMode
           ? 'bg-gray-700 border-gray-600 text-white'

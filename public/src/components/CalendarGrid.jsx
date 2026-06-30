@@ -20,6 +20,12 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
+function formatMonthKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
 export default function CalendarGrid({
   currentMonth,
   entries,
@@ -115,7 +121,7 @@ export default function CalendarGrid({
       {/* Calendar grid with month transition animations */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentMonth.toISOString().split('T')[0]}
+          key={formatMonthKey(currentMonth)}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -10 }}

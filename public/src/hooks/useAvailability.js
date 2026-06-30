@@ -5,7 +5,7 @@ import { useIdleTimeout } from "./useIdleTimeout";
 const API_BASE = "/api";
 const DEBOUNCE_DELAY = 500; // 500ms debounce for month changes
 const API_TIMEOUT = 3000; // 3 second timeout before falling back to mock
-const AGGRESSIVE_POLLING_INTERVAL = 2000; // 2 seconds when active (for real-time cross-device sync)
+const AGGRESSIVE_POLLING_INTERVAL = 1000; // 1 second when active (aligned with spec closeout sync target)
 const IDLE_POLLING_INTERVAL = 300000; // 5 minutes when idle (cost protection)
 const LS_AVAILABILITY_KEY = "daboyz_availability"; // localStorage key for caching entries
 
@@ -80,7 +80,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT) {
  * Falls back to mock API if real API is unavailable
  *
  * REAL-TIME CROSS-DEVICE SYNC STRATEGY:
- * - Aggressive polling: 2 seconds when active (down from 5s)
+ * - Aggressive polling: 1 second when active (down from 5s)
  * - Immediate refresh when tab becomes visible (visibilitychange event)
  * - Immediate refresh when window gains focus (focus event)
  * - Immediate refresh after any change (toggle/delete) completes
@@ -88,7 +88,7 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = API_TIMEOUT) {
  * Cost Protection Features:
  * - Stops polling when tab is hidden (Page Visibility API)
  * - Throttles polling to 5 minutes when idle for 10+ minutes
- * - Resumes to 2-second polling when tab becomes visible or user becomes active
+ * - Resumes to 1-second polling when tab becomes visible or user becomes active
  *
  * @param {string} month - Month string in format YYYY-MM (e.g., "2024-06")
  * @returns {{
@@ -214,7 +214,7 @@ export function useAvailability(month) {
   // Polling frequency for REAL-TIME CROSS-DEVICE SYNC:
   // - 0 (stopped) when tab is hidden
   // - 5 minutes (300000ms) when user idle for 10+ minutes
-  // - 2 seconds (2000ms) when visible and active (aggressive for real-time sync)
+  // - 1 second (1000ms) when visible and active (aggressive for real-time sync)
   // - IMMEDIATE refresh when tab becomes visible or window gains focus
   useEffect(() => {
     // Handle Page Visibility API
@@ -279,7 +279,7 @@ export function useAvailability(month) {
       // Tab visible but user idle: throttle to 5 minutes (cost protection)
       pollingFrequency = IDLE_POLLING_INTERVAL; // 300000ms
     } else {
-      // Tab visible and user active: AGGRESSIVE polling (2 seconds for real-time cross-device sync)
+      // Tab visible and user active: AGGRESSIVE polling (1 second for real-time cross-device sync)
       pollingFrequency = AGGRESSIVE_POLLING_INTERVAL; // 2000ms
     }
 

@@ -39,14 +39,19 @@ function PersonaOnboarding({ onPersonaCreate }) {
     const fetchPersonas = async () => {
       try {
         setLoadingPersonas(true);
-        const response = await fetch("/api/personas");
+        const response = await fetch("/api/users");
 
         if (!response.ok) {
           throw new Error(`Failed to fetch personas: ${response.status}`);
         }
 
         const data = await response.json();
-        setAllPersonas(Array.isArray(data.personas) ? data.personas : []);
+        const users = Array.isArray(data.users)
+          ? data.users
+          : Array.isArray(data.personas)
+            ? data.personas
+            : [];
+        setAllPersonas(users.map(({ name, color }) => ({ name, color })));
         setPersonasError(null);
       } catch (err) {
         console.warn("Failed to fetch existing personas:", err.message);

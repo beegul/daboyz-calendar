@@ -40,13 +40,16 @@ export function MobileHeader({
       <div className="px-3 py-2 flex items-center justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h1 className={`text-sm font-bold truncate ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-            Da Boyz {monthDisplay && `• ${monthDisplay}`}
+            Da Boyz Calendar
           </h1>
+          <p className={`text-xs truncate ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {monthDisplay || 'Month unavailable'}
+          </p>
           <p className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-            {activePersona?.name || 'Create'}
+            Persona: {activePersona?.name || 'Create'}
           </p>
         </div>
-        <div className="text-xs flex-shrink-0">{status}</div>
+        <div className="text-xs flex-shrink-0" aria-live="polite">{status}</div>
         <DarkModeToggle isDarkMode={isDarkMode} onChange={onToggleDarkMode} />
       </div>
     </header>

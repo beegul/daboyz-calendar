@@ -10,5 +10,8 @@ api/.venv/
 public/.next/
 .next/
 *.log
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 .DS_Store
 Thumbs.db

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-06-30
+
+### Changed
+
+- Reworked local development scripts:
+  - `npm run dev` now starts the stable frontend loop only
+  - Added `dev:web`, `dev:api`, `dev:swa`, and `dev:full` workflows
+  - Added `concurrently` to dev dependencies for full-stack local orchestration
+- Updated closeout planning artifacts for Spec 007 with lean validation-first execution.
+
+### Fixed
+
+- Month/date key handling now consistently uses local calendar values (avoids UTC drift edge cases).
+- Active persona fallback is hardened when a selected persona is deleted by another client.
+- Offline queue now preserves persona color metadata and replays availability actions with compatible payload shape.
+- Offline enqueue detection now checks the correct entry fields for existing availability.
+
+### Testing
+
+- Consolidated high-signal regression lanes for:
+  - availability sync
+  - persona synchronization and cascade delete
+  - mobile clarity and touch interaction
+  - offline queue and polling recovery
+- Retained targeted edge-case lanes for same-date concurrent writes, idempotent double delete, and high-concurrency entry retention.
+
 ## [1.2.0] - 2026-06-29
 
 ### Infrastructure and Cost Optimizations

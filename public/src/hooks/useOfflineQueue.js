@@ -106,6 +106,7 @@ export function useOfflineQueue() {
         id: generateUUID(),
         type: itemInput.type,
         personaName: itemInput.personaName,
+        color: itemInput.color || null,
         date: itemInput.date || null,
         value: itemInput.value !== undefined ? itemInput.value : null,
         timestamp: Date.now(),
@@ -176,9 +177,10 @@ export function useOfflineQueue() {
         case QUEUE_ITEM_TYPES.MARK_UNAVAILABLE:
           endpoint = '/api/availability';
           body = {
-            personaName: item.personaName,
+            name: item.personaName,
+            color: item.color,
             date: item.date,
-            available: item.value
+            available: item.value,
           };
           break;
 

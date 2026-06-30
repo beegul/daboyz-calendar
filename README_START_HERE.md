@@ -1,5 +1,23 @@
 # 🎉 PREMIUM MOTION UX - FEATURE COMPLETION INDEX
 
+## Spec 007 Closeout Quick Start
+
+If you are actively finishing the multi-user sync and mobile UX closeout work, start here first:
+
+1. Install dependencies: `npm install`
+2. Run frontend-only dev loop: `npm run dev`
+3. For full local stack (when tools are installed): `npm run dev:full`
+4. Validate before merge: `npm run lint`, `npm run test`, `npm run build`
+5. Use `specs/007-multi-user-sync-mobile-ux/tasks.md` as the active task ledger
+
+Supported local prerequisites:
+
+- Node.js 20 LTS
+- Azure Functions Core Tools v4 (`func`)
+- SWA CLI (`swa`)
+
+Use frontend-only fallback when API emulation tools are unavailable and record any skipped local checks.
+
 **Start Here** ↓
 
 ---

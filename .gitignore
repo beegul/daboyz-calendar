@@ -51,10 +51,12 @@ local.settings.json
 .env.*.local
 
 # IDE
-.vscode/
+
 .idea/
+.vscode/
 *.swp
 *.swo
+*.tmp
 
 # System
 .DS_Store

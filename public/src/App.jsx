@@ -21,7 +21,9 @@ import MobilePersonaSelector from "./components/MobilePersonaSelector";
 
 // Month utility functions
 function getIsoMonth(date) {
-  return date.toISOString().split("T")[0].slice(0, 7);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
 }
 
 export default function App() {
@@ -257,6 +259,23 @@ export default function App() {
     }
   }, [polledPersonas, refetchAvailability]);
 
+  // Guardrail: if the active persona becomes invalid for any reason,
+  // deterministically fall back to the first available persona.
+  useEffect(() => {
+    if (!activePersona) return;
+    if (personas.some((p) => p.name === activePersona.name)) return;
+
+    if (personas.length > 0) {
+      setActivePersona(personas[0]);
+      localStorage.setItem("active_persona", JSON.stringify(personas[0]));
+      return;
+    }
+
+    setActivePersona(null);
+    localStorage.removeItem("active_persona");
+    setShowOnboarding(true);
+  }, [personas, activePersona]);
+
   const loading = availLoading;
   const error = availError;
 
@@ -419,12 +438,13 @@ export default function App() {
     // Phase 2: If offline, enqueue the availability change for later
     if (!queueIsOnline) {
       const isCurrentlyAvailable = entries.some(
-        (e) => e.personaName === activePersona.name && e.date === date
+        (e) => e.name === activePersona.name && e.color === activePersona.color && e.date === date
       );
       
       enqueueOffline({
         type: isCurrentlyAvailable ? 'mark_unavailable' : 'mark_available',
         personaName: activePersona.name,
+        color: activePersona.color,
         date: date,
         value: !isCurrentlyAvailable
       });
@@ -440,12 +460,13 @@ export default function App() {
       console.error("Error toggling availability:", err);
       // If error, enqueue for retry
       const isCurrentlyAvailable = entries.some(
-        (e) => e.personaName === activePersona.name && e.date === date
+        (e) => e.name === activePersona.name && e.color === activePersona.color && e.date === date
       );
       
       enqueueOffline({
         type: isCurrentlyAvailable ? 'mark_unavailable' : 'mark_available',
         personaName: activePersona.name,
+        color: activePersona.color,
         date: date,
         value: !isCurrentlyAvailable
       });

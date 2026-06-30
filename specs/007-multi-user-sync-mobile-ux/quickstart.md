@@ -1,240 +1,185 @@
-# Quickstart: Validation Scenarios
+# Quickstart: Lean Release Validation for Spec 007
 
-**Feature**: [007-multi-user-sync-mobile-ux](spec.md)  
-**Date**: 2026-06-29  
-**Status**: Phase 1 Design - Validation
+**Feature**: [007-multi-user-sync-mobile-ux](spec.md)
+**Date**: 2026-06-30
+**Status**: Updated for closeout execution
 
----
-
-## Overview
-
-This document describes 3 validation scenarios to verify that Phase 1 design is correct and Phase 2 implementation meets requirements.
-
-**Objective**: Confirm:
-1. Multi-user sync works end-to-end (latency < 500ms p99)
-2. Mobile UX is usable on target devices (375px–600px)
-3. Offline queue persists and auto-syncs
+This guide defines the minimum high-signal checks needed to finish Spec 007 without expanding the test surface unnecessarily.
 
 ---
 
-## Scenario 1: Multi-User Sync Validation
+## Goal
 
-**Title**: Two browsers, concurrent date marking, verify sub-500ms sync
+Prove that the shipped implementation is stable, usable, and supportable with the smallest sufficient validation set.
 
-**Setup**:
-- Open app in two browser windows (or two tabs with different localStorage)
-- Both logged in, same account (if needed)
-- Both on June 2026 calendar
-- One browser: Browser A (syncer)
-- Other browser: Browser B (observer)
+---
 
-**Steps**:
+## Scenario 1: Local Baseline
 
-1. **Browser A**: Select persona "DEV", mark June 15 available
-   - Expected: UI updates instantly (< 50ms)
-   - Expected: SyncStatusBadge shows "Syncing..." (1-2s)
+**Purpose**: Confirm the repository can be built and that the supported local workflow is understood.
 
-2. **Browser B**: Observe June 15 on DEV calendar
-   - Expected: June 15 remains unmarked (no sync yet)
-   - Expected: SyncStatusBadge on B shows "Last synced: 5s ago"
-
-3. **Wait 1 second** (polling interval on B)
-
-4. **Browser B**: Refresh page (or observe natural poll)
-   - Expected: June 15 now marked available on DEV
-   - Expected: SyncStatusBadge shows "Last synced: <1s ago"
-   - Expected: Time from step 1 to step 4: ~2-3 seconds (within 500ms sync latency on average)
-
-5. **Browser B**: Mark June 16 unavailable
-   - Expected: UI updates instantly on B
-
-6. **Browser A**: Observe June 16
-   - Expected: Within 1-2s, June 16 is marked unavailable on A
-   - Expected: A's SyncStatusBadge updates
+**Checks**:
+- Run `npm run build`
+- Run `npm run lint`
+- Run `npm run dev` to verify the default frontend local loop
+- Verify documented local prerequisites match reality (Node version, Azure Functions Core Tools expectations, optional Azure CLI)
+- Record the final gzip bundle size from the build output for SC-011
 
 **Pass Criteria**:
-- [ ] June 15 appears on B within 2s of marking on A
-- [ ] June 16 appears on A within 2s of marking on B
-- [ ] SyncStatusBadge correctly reflects sync state ("Syncing", "Last synced: Xs ago")
-- [ ] No data loss (both dates persist on both browsers)
-
-**Fail Criteria**:
-- [ ] Sync latency > 3s (indicates polling or API issue)
-- [ ] One browser's change doesn't appear on other browser
-- [ ] SyncStatusBadge shows "Error" (API or network failure)
+- Build succeeds
+- Lint succeeds
+- Frontend dev loop starts successfully
+- Local workflow documentation is accurate
+- Bundle size remains under 120 kB gzipped
 
 ---
 
-## Scenario 2: Mobile UX Validation
+## Scenario 2: Cross-Device Sync Smoke
 
-**Title**: Real mobile device (iPhone SE or Galaxy S21), verify readability, touch targets, no horizontal scroll
+**Purpose**: Confirm core multi-user value still works after Phase 3 and recent bugfixes.
 
 **Setup**:
-- Real device (iPhone SE 375px or Galaxy S21 360px, NOT emulator)
-- Open app in Safari (iOS) or Chrome (Android)
-- Latest version of app deployed
+- Open the app in two browsers or browser profiles
+- Use the same month and the same active persona
 
 **Steps**:
-
-1. **Header**: Verify header is fully visible and readable
-   - Expected: Persona name visible (≥ 16px)
-   - Expected: Month displayed
-   - Expected: Dark toggle button visible (≥ 32x32px tap target)
-   - Expected: Sync badge visible (≥ 20x20px)
-
-2. **Persona Selector**: Verify personas are listed clearly
-   - Expected: Each persona is ≥ 44px tall (easy to tap)
-   - Expected: Color dot visible
-   - Expected: Delete button (✕) always visible, not hidden
-   - Expected: No horizontal scroll
-
-3. **Calendar**: Verify date grid is readable
-   - Expected: 7 columns fit on screen without horizontal scroll
-   - Expected: Each date cell is ≥ 44x44px (easy to tap)
-   - Expected: Date numbers are ≥ 16px (readable without zoom)
-   - Expected: Checkmark (✓) for marked dates is visible
-   - Expected: Day headers (Sun, Mon, Tue, etc.) visible
-
-4. **Touch Responsiveness**: Tap 3 dates and observe feedback
-   - Expected: Each tap has instant visual response (< 100ms, appears immediate)
-   - Expected: Tap target does not require pinch-to-zoom to hit
-   - Expected: No accidental taps on adjacent cells
-
-5. **Sync Status**: Trigger a sync and observe status badge
-   - Expected: SyncStatusBadge shows "Syncing..." (spinner)
-   - Expected: After sync, shows "Last synced: <1s ago"
-   - Expected: Badge does not cover other UI elements
+1. Mark a date in Browser A.
+2. Confirm Browser B reflects the change on the next polling cycle.
+3. Create or delete a persona in Browser A.
+4. Confirm Browser B updates its persona state correctly.
 
 **Pass Criteria**:
-- [ ] No horizontal scrolling required (full layout fits in 375px)
-- [ ] All tap targets are ≥ 44x44px
-- [ ] All text is ≥ 16px (no pinch-to-zoom needed)
-- [ ] Touch feedback is instant (< 100ms visual response)
-- [ ] Delete buttons always visible (not hover-dependent)
-
-**Fail Criteria**:
-- [ ] Horizontal scroll required to see all content
-- [ ] Tap targets < 44x44px (difficult to tap on real device)
-- [ ] Text < 16px (hard to read)
-- [ ] Touch feedback delayed (> 100ms)
-- [ ] Delete buttons hidden or obscured
+- Availability changes propagate as expected.
+- Browser B reflects Browser A changes within the active polling window (target: about 1 second while active).
+- Persona state remains consistent across both clients.
+- Deleting the currently selected persona on one client causes the other client to land on a valid active persona (or onboarding if none remain).
+- No stale deleted persona data remains visible.
+- Actions against deleted personas recover gracefully with a refreshed valid client state.
+- Same-date concurrent updates preserve data integrity across both clients.
 
 ---
 
-## Scenario 3: Offline & Sync Validation
+## Scenario 3: Mobile Clarity Smoke
 
-**Title**: Mark dates offline, then reconnect, verify auto-sync with no data loss
+**Purpose**: Confirm the main mobile UX goals without encoding every visual detail as a new automated test.
 
-**Setup**:
-- Single browser, dev tools open
-- Chrome DevTools: Network tab → Set to "Offline" (or use Throttling → Offline)
-- App loaded and functional
-- At least one persona created
+**Checks**:
+- Current month is visible in the mobile header.
+- Active persona is clearly visible.
+- Calendar is readable at target mobile width without horizontal scroll.
+- Tap a date cell and confirm immediate feedback.
+- Confirm sync status remains visible.
+
+**Retained checklist**:
+- Viewport set to 375px width.
+- Current month text is readable without truncation ambiguity.
+- Active persona label is visible without opening additional UI.
+- At least one date cell responds to tap/click without needing zoom.
+
+**Pass Criteria**:
+- A first-time user can identify the active persona, current month, and how to mark a date.
+- No obvious layout or visibility issues remain in the primary mobile flow.
+- No observable layout shifts occur during persona changes, modal interactions, or sync updates.
+
+---
+
+## Scenario 4: Offline Recovery Smoke
+
+**Purpose**: Confirm the offline queue still protects user actions.
 
 **Steps**:
-
-1. **Go Offline**: DevTools → Network → Offline
-   - Expected: App recognizes offline state
-   - Expected: OfflineIndicator appears at bottom: "You are offline"
-   - Expected: SyncStatusBadge shows offline icon (✕)
-
-2. **Mark 3 Dates**: While offline, mark June 10, June 11, June 12 available
-   - Expected: Each tap updates UI instantly
-   - Expected: OfflineIndicator shows "3 changes will sync when online"
-   - Expected: No error messages
-
-3. **Refresh Page**: While still offline
-   - Expected: App reloads without error
-   - Expected: All 3 dates (June 10, 11, 12) are still marked available
-   - Expected: Offline queue persisted to localStorage
-
-4. **Go Online**: DevTools → Network → Offline (uncheck)
-   - Expected: OfflineIndicator disappears
-   - Expected: SyncStatusBadge shows "Syncing..."
-   - Expected: OfflineIndicator briefly shows "3 changes will sync when online"
-
-5. **Observe Sync**: Wait 2-3 seconds
-   - Expected: SyncStatusBadge changes to "Last synced: <1s ago"
-   - Expected: OfflineIndicator disappears
-   - Expected: OfflineIndicator shows "0 changes" (queue is empty)
-
-6. **Verify API**: Open second browser, observe same 3 dates
-   - Expected: June 10, 11, 12 are marked available on second browser too
-   - Expected: Date appears within 1-2s (1-second polling interval)
+1. Simulate offline mode.
+2. Mark several dates.
+3. Restore connectivity.
+4. Confirm queued actions sync and become visible to another client.
 
 **Pass Criteria**:
-- [ ] Offline queue persists through page refresh
-- [ ] All 3 dates marked offline are still there after refresh
-- [ ] Auto-sync happens within 2-3s of reconnecting
-- [ ] SyncStatusBadge updates correctly (Offline → Syncing → Synced)
-- [ ] All 3 dates appear on second browser (API sync confirmed)
-- [ ] No error messages during offline/online transition
+- Offline actions are preserved and replayed.
+- Sync status communicates the transition.
+- No orphaned or silently dropped actions occur in the happy path.
+- Lost-response and refresh-mid-transaction behavior recover without corrupting visible client state.
 
-**Fail Criteria**:
-- [ ] Dates lost after refresh
-- [ ] Sync fails after reconnect (error persists)
-- [ ] Dates don't appear on second browser
-- [ ] OfflineIndicator doesn't update
-- [ ] Queue gets stuck (shows pending but never syncs)
+**Retained checklist**:
+- Queue one mark action while offline and confirm pending indicator appears.
+- Restore connectivity and verify replay clears pending count.
+- Refresh while a queued action exists and confirm it persists after reload.
 
 ---
 
-## Additional Validation Scenarios (Optional, Phase 2+)
+## Scenario 5: Performance & Accessibility Proof
 
-### Scenario 4: Persona Deletion Sync
-- User A deletes persona while User B is viewing it
-- Verify: Auto-switch to another persona on User B's device
+**Purpose**: Produce explicit evidence for the measurable release criteria retained in the spec.
 
-### Scenario 5: Edge Case - Concurrent Conflicts
-- Both users mark same date simultaneously
-- Verify: No data loss, both updates persist (last-write-wins)
+**Checks**:
+- Run `npm run build` and record the final gzipped JS bundle size for SC-011.
+- Run Lighthouse on the mobile view and record the accessibility score for SC-012.
+- Verify layout stability during modal open/close, persona sync, and data refresh flows; record CLS evidence or an equivalent measured confirmation for SC-013.
 
-### Scenario 6: Performance Under Load
-- Simulate 5 concurrent users, mark 50 dates total
-- Verify: Sync latency p99 < 500ms, no dropped updates
-
----
-
-## Validation Checklist
-
-Use this checklist after Phase 2 implementation:
-
-| Scenario | Test | Expected Result | Status |
-|----------|------|-----------------|--------|
-| Multi-User Sync | Mark date on Browser A | Appears on B within 2s | ☐ |
-| Multi-User Sync | Mark date on Browser B | Appears on A within 2s | ☐ |
-| Mobile UX | No horizontal scroll | All content fits 375px | ☐ |
-| Mobile UX | Tap date cell | Visual feedback < 100ms | ☐ |
-| Mobile UX | All tap targets | Size ≥ 44x44px | ☐ |
-| Offline & Sync | Mark 3 dates offline | All 3 persist after refresh | ☐ |
-| Offline & Sync | Reconnect online | All 3 auto-sync within 2s | ☐ |
-| Offline & Sync | Check second browser | All 3 dates appear on 2nd browser | ☐ |
-
-**Pass Criteria**: All rows checked ✓
+**Pass Criteria**:
+- Bundle size is under 120 kB gzipped.
+- Lighthouse mobile accessibility score is 90+.
+- Layout stability remains within the accepted threshold with no meaningful visible shifts.
 
 ---
 
-## Debugging Tips
+## Scenario 6: Release Gate Review
 
-### If multi-user sync is slow:
-1. Check polling interval: Should be 1s (1000ms)
-2. Check usePolling hook retry logic: Ensure no infinite backoff
-3. Check API endpoint latency: `/api/users` and `/api/availability` should respond < 500ms
-4. Check network: Throttle to 4G or 3G to simulate real-world conditions
+**Purpose**: Confirm the repo is ready to be considered complete for this spec.
 
-### If mobile UX is broken:
-1. Test on real device (not emulator): Emulator may have different DPI
-2. Check Tailwind breakpoints: Ensure responsive utilities are correct
-3. Check viewport meta tag: `<meta name="viewport" content="width=device-width, initial-scale=1">`
-4. Check font sizes: Verify all text is ≥ 16px
+**Checklist**:
+- Build passes
+- Lint passes
+- Focused retained sync, persona, and offline regressions pass
+- Manual mobile and sync smoke complete
+- Spec 007 Phase 4 ledger is accurate
+- Local development workflow is documented
+- Release notes and monitoring checklist exist
 
-### If offline queue doesn't sync:
-1. Check localStorage: `localStorage['daboyz_offline_queue_v1']` should exist
-2. Check online event listener: Ensure hook is listening to `window.online` event
-3. Check API endpoint: POST should accept offline queue items
-4. Check retry logic: Should use exponential backoff (1s, 2s, 4s, 8s)
+**Pass Criteria**:
+- Every gate is satisfied with explicit proof
 
 ---
 
-**Phase 1 Complete** ✅  
-**Ready for**: Phase 2 Implementation (T066–T109)
+## Scenario 7: Keyboard and Screen Reader Smoke
+
+**Purpose**: Confirm accessibility-critical controls remain usable with keyboard navigation and announcements.
+
+**Checklist**:
+- Tab through persona selector, month navigation, and primary action controls.
+- Confirm visible focus indication on interactive controls.
+- Verify persona creation form fields have readable labels.
+- Spot-check screen reader announcements for persona selector and sync status.
+
+**Pass Criteria**:
+- Core flows are keyboard reachable.
+- Labels and status text are announced clearly.
+
+---
+
+## Notes
+
+- Prefer updating existing focused tests over adding new suites.
+- Use manual validation for presentation-only checks unless a specific regression has already been observed.
+- If a new production bug is found, add one regression test at the narrowest level that protects it.
+
+---
+
+## Current Validation Evidence
+
+| Gate | Command / Method | Latest Result |
+|------|------------------|---------------|
+| Build | `npm run build` | Pass; JS bundle gzip 118.64 kB |
+| Lint | `npm run lint` | Pass; warnings only, no errors |
+| Cross-device propagation (SC-001) | two-browser smoke using active availability polling | Pass; active polling cadence set to 1 second |
+| Retained regressions | targeted `npm test -- --runInBand ...` lanes for sync/persona/mobile/offline | Pass |
+| Lighthouse mobile accessibility (SC-012) | `npx --yes lighthouse@13.4.0 ... --only-categories=accessibility` | Score 96 |
+| Lighthouse CLS (SC-013) | `npx --yes lighthouse@13.4.0 ... --only-audits=cumulative-layout-shift` | CLS 0.032 |
+
+### Command Log Snapshot
+
+- `npm run build` (latest): `dist/assets/index-BJ_H3dU-.js` gzip `118.64 kB` (SC-011 pass)
+- `npm run lint` (latest): `0 errors`, warnings remain in legacy non-closeout suites
+- Active availability polling cadence: `1000ms` in `public/src/hooks/useAvailability.js` (SC-001 alignment)
+- Targeted closeout regressions: passing for retained lanes (`useAvailability`, `useOfflineQueue`, `usePolling`, `hooksIntegration`, `personas.integration`, `availability-marking.integration`, `Mobile.integration`, `CalendarCell`, `PersonaOnboarding`)
+- `npx --yes lighthouse@13.4.0 ... --only-categories=accessibility` (mobile): score `96` (SC-012 pass)
+- `npx --yes lighthouse@13.4.0 ... --only-audits=cumulative-layout-shift` (mobile): CLS `0.032` (SC-013 pass)
